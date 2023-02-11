@@ -42,4 +42,5 @@ func main() {
 
 	fmt.Println(size)
 
+	fmt.Println(verify(1, 1))
 }
