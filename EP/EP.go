@@ -80,7 +80,7 @@ func main() {
 	sy = 0.0
 
 	//TODO: parallel block
-	parallelEP(np, an)
+	parallelEP(np, an, sx, sy)
 
 	for i := 0; i < NQ-1; i++ {
 		gc = gc + q[i]
