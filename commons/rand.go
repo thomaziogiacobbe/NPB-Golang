@@ -1,4 +1,4 @@
-package main
+package commons
 
 const (
 	r23 = 0.5 * 0.5 * 0.5 * 0.5 * 0.5 * 0.5 * 0.5 * 0.5 * 0.5 * 0.5 * 0.5 * 0.5 * 0.5 * 0.5 * 0.5 * 0.5 * 0.5 * 0.5 * 0.5 * 0.5 * 0.5 * 0.5 * 0.5
@@ -7,7 +7,7 @@ const (
 	t46 = t23 * t23
 )
 
-func vranlc(n int, xSeed *float64, a float64, y []float64) {
+func Vranlc(n int, xSeed *float64, a float64, y []float64) {
 
 	var x, t1, t2, t3, t4, a1, a2, x1, x2, z float64
 
@@ -31,7 +31,7 @@ func vranlc(n int, xSeed *float64, a float64, y []float64) {
 	*xSeed = x
 }
 
-func randlc(x *float64, a float64) float64 {
+func Randlc(x *float64, a float64) float64 {
 	var t1, t2, t3, t4, a1, a2, x1, x2, z float64
 
 	t1 = r23 * a
