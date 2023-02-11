@@ -33,8 +33,7 @@ func main() {
 	var size float64
 	var mops, t1, t2, t3, t4, x1, x2 float64
 	var sx, sy, tm, an, tt, gc float64
-	var sx_verify_value, sy_verify_value, sx_err, sy_err float64
-	var np int32
+	var np int
 	var ik, kk, l, k, nit int32
 	var k_offset, j int32
 	var verified bool
@@ -43,7 +42,7 @@ func main() {
 	var x = [NK_PLUS]float64{}
 	var q = [NQ]float64{}
 
-	fmt.Println("\n\n NAS Parallel Benchmarks 4.1 Parallel Golang version - EP Benchmark\\n\\n")
+	fmt.Println("\n\n NAS Parallel Benchmarks 4.1 Parallel Golang version - EP Benchmark\n")
 	fmt.Println(" Number of random numbers generated:", size)
 
 	verified = false
@@ -80,4 +79,36 @@ func main() {
 	}
 
 	k_offset = -1
+
+	//TODO: parallel block
+
+	for i := 0; i < NQ-1; i++ {
+		gc = gc + q[i]
+	}
+
+	//TODO: add timer_stop and timer_read
+
+	nit = 0
+
+	verified = verify(sx, sy)
+	mops = math.Pow(2.0, float64(M+1)) / tm / 1000000.0
+
+	fmt.Println("\n EP Benchmark Results: \n")
+	fmt.Println(" CPU Time =", tm)
+	fmt.Println(" N = 2^", M)
+	fmt.Println(" No. Gaussian Pairs = ", gc)
+	fmt.Println(" Sums = ", sx, sy)
+	fmt.Println(" Counts:")
+	for i := 0; i < NQ-1; i++ {
+		fmt.Println(i, q[i])
+	}
+
+	npb.Print_results("EP",
+		args[0],
+		int(size),
+		nit,
+		tm,
+		mops,
+		"Random numbers generated",
+		verified)
 }
