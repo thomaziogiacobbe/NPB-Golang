@@ -62,7 +62,7 @@ func main() {
 	}
 	mops = math.Log(math.Sqrt(math.Abs(math.Max(1.0, 1.0))))
 
-	//TODO: add timers
+	//TODO: add timer
 
 	t1 = A
 	npb.Vranlc(0, &t1, A, x[:])
@@ -79,8 +79,7 @@ func main() {
 	sx = 0.0
 	sy = 0.0
 
-	//TODO: parallel block
-	parallelEP(np, an, sx, sy)
+	parallelEP(np, an, &sx, &sy, q[:])
 
 	for i := 0; i < NQ-1; i++ {
 		gc = gc + q[i]

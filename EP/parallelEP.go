@@ -3,26 +3,38 @@ package main
 import (
 	npb "NPB-Golang/commons"
 	"math"
+	"sync"
 )
 
 func parallelEP(
 	np int,
 	an float64,
-	sx float64,
-	sy float64,
+	sx *float64,
+	sy *float64,
+	q []float64,
 ) {
-	var t1, t2, t3, t4, x1, x2 float64
-	var kk, ik, l int
-	var qq, x = [NQ]float64{}, [NK_PLUS]float64{}
 	var k_offset = -1
+
+	var wg sync.WaitGroup
+	var reductionMutex, arrayResultMutex sync.Mutex
+	wg.Add(np)
 
 	for k := 1; k <= np; k++ {
 		go func(k int) {
+			defer wg.Done()
+
+			var (
+				sxThis, syThis         = 0.0, 0.0
+				t1, t2, t3, t4, x1, x2 float64
+				kk, ik, l              int
+				qq, x                  = [NQ]float64{}, [NK_PLUS]float64{}
+			)
+
 			kk = k_offset + k
 			t1 = S
 			t2 = an
 
-			//TODO: thread id is missing timer
+			//TODO: thread id is missing, timer
 
 			for i := 0; i <= 100; i++ {
 				ik = kk / 2
@@ -49,15 +61,24 @@ func parallelEP(
 					t2 = math.Sqrt(-2.0 * math.Log(t1) / t1)
 					t3 = x1 * t2
 					t4 = x2 * t2
+					//TODO: verify equivalence of this cast and the C++ counterpart
 					l = int(math.Max(math.Abs(t3), math.Abs(t4)))
 					qq[l] += 1.0
-					//TODO: reduction
-					sx = sx + t3
-					sy = sy + t4
+					sxThis += t3
+					syThis += t4
 				}
 			}
+			reductionMutex.Lock()
+			*sx += sxThis
+			*sy += syThis
+			reductionMutex.Unlock()
 			//TODO: timer_stop(1)
-			//TODO: missing mutex for array
+			arrayResultMutex.Lock()
+			for i := 0; i < NQ; i++ {
+				q[i] += qq[i]
+			}
+			arrayResultMutex.Unlock()
 		}(k)
 	}
+	wg.Wait()
 }
