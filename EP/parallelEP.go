@@ -3,7 +3,6 @@ package main
 import (
 	npb "NPB-Golang/commons"
 	"math"
-	"sync"
 )
 
 func parallelEP(
@@ -15,14 +14,14 @@ func parallelEP(
 ) {
 	var k_offset = -1
 
-	var wg sync.WaitGroup
-	var reductionMutex, arrayResultMutex sync.Mutex
-	wg.Add(np)
+	qTemp := [NQ]float64{}
+
+	sxResult := make(chan float64, np)
+	syResult := make(chan float64, np)
+	qResult := make(chan [NQ]float64, np)
 
 	for k := 1; k <= np; k++ {
 		go func(k int) {
-			defer wg.Done()
-
 			var (
 				sxThis, syThis         = 0.0, 0.0
 				t1, t2, t3, t4, x1, x2 float64
@@ -68,17 +67,18 @@ func parallelEP(
 					syThis += t4
 				}
 			}
-			reductionMutex.Lock()
-			*sx += sxThis
-			*sy += syThis
-			reductionMutex.Unlock()
+			sxResult <- sxThis
+			syResult <- syThis
+			qResult <- qq
 			//TODO: timer_stop(1)
-			arrayResultMutex.Lock()
-			for i := 0; i < NQ; i++ {
-				q[i] += qq[i]
-			}
-			arrayResultMutex.Unlock()
 		}(k)
 	}
-	wg.Wait()
+	for k := 1; k <= np; k++ {
+		*sx += <-sxResult
+		*sy += <-syResult
+		qTemp = <-qResult
+		for j := range q {
+			q[j] += qTemp[j]
+		}
+	}
 }
