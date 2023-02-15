@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"time"
 )
 
 var (
@@ -36,8 +37,7 @@ func main() {
 
 	var size float64
 	var mops, t1 float64
-	//TODO: variable tt is for timer
-	var sx, sy, tm, an, gc /*, tt*/ float64
+	var sx, sy, an, gc float64
 	var np int
 	var nit int32
 	var verified bool
@@ -45,9 +45,10 @@ func main() {
 	size = math.Pow(2.0, float64(M+1))
 	var x = [NK_PLUS]float64{}
 	var q = [NQ]float64{}
+	var tt time.Duration
 
 	fmt.Println("\n\n NAS Parallel Benchmarks 4.1 Parallel Golang version - EP Benchmark\n")
-	fmt.Println(" Number of random numbers generated:", size)
+	fmt.Println(" Number of random numbers generated:", size, "\n")
 
 	verified = false
 
@@ -61,8 +62,6 @@ func main() {
 	}
 	mops = math.Log(math.Sqrt(math.Abs(math.Max(1.0, 1.0))))
 
-	//TODO: add timer
-
 	t1 = A
 	npb.Vranlc(0, &t1, A, x[:])
 
@@ -73,26 +72,22 @@ func main() {
 	}
 
 	an = t1
-	//TODO: variable tt is for timer
-	//tt = S
 	gc = 0.0
 	sx = 0.0
 	sy = 0.0
 
-	parallelEP(np, an, &sx, &sy, q[:])
+	parallelEP(np, an, &sx, &sy, q[:], &tt)
 
 	for i := 0; i < NQ-1; i++ {
 		gc = gc + q[i]
 	}
 
-	//TODO: add timer_stop and timer_read
-
 	nit = 0
 
 	verified = verify(sx, sy)
-	mops = math.Pow(2.0, float64(M+1)) / tm / 1000000.0
+	mops = math.Pow(2.0, float64(M+1)) / tt.Seconds() / 1000000.0
 
-	npb.PrintEPResults(tm,
+	npb.PrintEPResults(&tt,
 		M,
 		gc,
 		sx,
@@ -105,7 +100,7 @@ func main() {
 		args[0],
 		int(size),
 		nit,
-		tm,
+		&tt,
 		mops,
 		"Random numbers generated",
 		verified)

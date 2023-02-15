@@ -5,6 +5,7 @@ import (
 	"os"
 	"runtime"
 	"strconv"
+	"time"
 )
 
 func Print_results(
@@ -12,7 +13,7 @@ func Print_results(
 	classNpb string,
 	epSize int,
 	niter int32,
-	t float64,
+	tt *time.Duration,
 	mops float64,
 	optype string,
 	passedVerification bool,
@@ -31,7 +32,7 @@ func Print_results(
 		{"Size", epSize},
 		{"Number of available threads", runtime.NumCPU()},
 		{"Number of iterations", niter},
-		{"Time in seconds", t},
+		{"Time in seconds", *tt},
 		{"Mop/s total", mops},
 		{"Operation type", optype},
 		{"Verification", verifyString},
@@ -46,7 +47,7 @@ func Print_results(
 }
 
 func PrintEPResults(
-	tm float64,
+	tm *time.Duration,
 	m int,
 	gc float64,
 	sx float64,
@@ -56,7 +57,7 @@ func PrintEPResults(
 ) {
 	tableHeader := table.Row{"EP Benchmark Results"}
 	tableRows := []table.Row{
-		{"CPU Time", tm},
+		{"CPU Time", *tm},
 		{"N ", "2^" + strconv.Itoa(m)},
 		{"No. Gaussian Pairs", gc},
 		{"Sums", strconv.FormatFloat(sx, 'g', -1, 64) + " " + strconv.FormatFloat(sy, 'g', -1, 64)},

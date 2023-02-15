@@ -3,6 +3,7 @@ package main
 import (
 	npb "NPB-Golang/commons"
 	"math"
+	"time"
 )
 
 func parallelEP(
@@ -11,6 +12,7 @@ func parallelEP(
 	sx *float64,
 	sy *float64,
 	q []float64,
+	tt *time.Duration,
 ) {
 	var k_offset = -1
 
@@ -20,6 +22,8 @@ func parallelEP(
 	syResult := make(chan float64, np)
 	qResult := make(chan [NQ]float64, np)
 
+	start := time.Now()
+	defer getExecTime(tt, &start)
 	for k := 1; k <= np; k++ {
 		go func(k int) {
 			var (
@@ -33,8 +37,6 @@ func parallelEP(
 			t1 = S
 			t2 = an
 
-			//TODO: thread id is missing, timer
-
 			for i := 0; i <= 100; i++ {
 				ik = kk / 2
 				if (2 * ik) != kk {
@@ -47,11 +49,8 @@ func parallelEP(
 				kk = ik
 			}
 
-			//TODO: timer_start(2)
 			npb.Vranlc(2*NK, &t1, A, x[:])
-			//TODO: timer_stop(2)
 
-			//TODO: timer_start(1)
 			for i := 0; i < NK; i++ {
 				x1 = 2.0*x[2*i] - 1.0
 				x2 = 2.0*x[2*i+1] - 1.0
@@ -60,7 +59,6 @@ func parallelEP(
 					t2 = math.Sqrt(-2.0 * math.Log(t1) / t1)
 					t3 = x1 * t2
 					t4 = x2 * t2
-					//TODO: verify equivalence of this cast and the C++ counterpart
 					l = int(math.Max(math.Abs(t3), math.Abs(t4)))
 					qq[l] += 1.0
 					sxThis += t3
@@ -70,7 +68,6 @@ func parallelEP(
 			sxResult <- sxThis
 			syResult <- syThis
 			qResult <- qq
-			//TODO: timer_stop(1)
 		}(k)
 	}
 	for k := 1; k <= np; k++ {
@@ -81,4 +78,8 @@ func parallelEP(
 			q[j] += qTemp[j]
 		}
 	}
+}
+
+func getExecTime(tt *time.Duration, start *time.Time) {
+	*tt = time.Since(*start)
 }
