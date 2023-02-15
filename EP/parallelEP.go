@@ -6,6 +6,12 @@ import (
 	"time"
 )
 
+type ResultData struct {
+	sxResult float64
+	syResult float64
+	qResult  [NQ]float64
+}
+
 func parallelEP(
 	np int,
 	an float64,
@@ -14,13 +20,13 @@ func parallelEP(
 	q []float64,
 	tt *time.Duration,
 ) {
-	var k_offset = -1
+	const k_offset = -1
 
 	qTemp := [NQ]float64{}
 
-	sxResult := make(chan float64, np)
-	syResult := make(chan float64, np)
-	qResult := make(chan [NQ]float64, np)
+	var result ResultData
+
+	resultChn := make(chan ResultData, np)
 
 	start := time.Now()
 	defer getExecTime(tt, &start)
@@ -31,6 +37,7 @@ func parallelEP(
 				t1, t2, t3, t4, x1, x2 float64
 				kk, ik, l              int
 				qq, x                  = [NQ]float64{}, [NK_PLUS]float64{}
+				resultThis             ResultData
 			)
 
 			kk = k_offset + k
@@ -65,15 +72,17 @@ func parallelEP(
 					syThis += t4
 				}
 			}
-			sxResult <- sxThis
-			syResult <- syThis
-			qResult <- qq
+			resultThis.sxResult = sxThis
+			resultThis.syResult = syThis
+			resultThis.qResult = qq
+			resultChn <- resultThis
 		}(k)
 	}
 	for k := 1; k <= np; k++ {
-		*sx += <-sxResult
-		*sy += <-syResult
-		qTemp = <-qResult
+		result = <-resultChn
+		*sx += result.sxResult
+		*sy += result.syResult
+		qTemp = result.qResult
 		for j := range q {
 			q[j] += qTemp[j]
 		}
