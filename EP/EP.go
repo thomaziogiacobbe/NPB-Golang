@@ -92,15 +92,14 @@ func main() {
 	verified = verify(sx, sy)
 	mops = math.Pow(2.0, float64(M+1)) / tm / 1000000.0
 
-	fmt.Println("\n EP Benchmark Results: \n")
-	fmt.Println(" CPU Time =", tm)
-	fmt.Println(" N = 2^", M)
-	fmt.Println(" No. Gaussian Pairs = ", gc)
-	fmt.Println(" Sums = ", sx, sy)
-	fmt.Println(" Counts:")
-	for i := 0; i < NQ-1; i++ {
-		fmt.Println(i, q[i])
-	}
+	npb.PrintEPResults(tm,
+		M,
+		gc,
+		sx,
+		sy,
+		NQ,
+		q[:],
+	)
 
 	npb.Print_results("EP",
 		args[0],
