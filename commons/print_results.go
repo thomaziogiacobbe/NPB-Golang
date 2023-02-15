@@ -1,11 +1,12 @@
 package commons
 
 import (
-	"fmt"
+	"github.com/jedib0t/go-pretty/v6/table"
+	"os"
 	"runtime"
+	"strconv"
 )
 
-// TODO: better print results, maybe use https://github.com/jedib0t/go-pretty
 func Print_results(
 	name string,
 	classNpb string,
@@ -16,19 +17,64 @@ func Print_results(
 	optype string,
 	passedVerification bool,
 ) {
-	fmt.Println("\n\n", name, " Benchmark Completed")
-	fmt.Println(" Class =", classNpb)
-	//TODO: others benchmarks to be defined, for now just printing size of EP
-	fmt.Println(" Size =", epSize)
-	fmt.Println(" Number of available threads =", runtime.NumCPU())
-	fmt.Println(" Number of iterations =", niter)
-	fmt.Println(" Time in seconds =", t)
-	fmt.Println(" Mop/s total =", mops)
-	fmt.Println(" Operation type =", optype)
+	var verifyString string
 	if passedVerification {
-		fmt.Println(" Verification =", "SUCCESSFUL")
+		verifyString = "SUCCESSFUL"
 	} else {
-		fmt.Println(" Verification =", "UNSUCCESSFUL")
+		verifyString = "UNSUCCESSFUL"
 	}
-	fmt.Println(" NPB Version = 4.1")
+
+	tableHeader := table.Row{name + " Benchmark Completed"}
+	//TODO: others benchmarks to be defined, for now just printing size of EP
+	tableRows := []table.Row{
+		{"Class", classNpb},
+		{"Size", epSize},
+		{"Number of available threads", runtime.NumCPU()},
+		{"Number of iterations", niter},
+		{"Time in seconds", t},
+		{"Mop/s total", mops},
+		{"Operation type", optype},
+		{"Verification", verifyString},
+		{"NPB Version", "4.1"},
+	}
+	tw := table.NewWriter()
+	tw.SetStyle(table.StyleLight)
+	tw.SetOutputMirror(os.Stdout)
+	tw.AppendHeader(tableHeader)
+	tw.AppendRows(tableRows)
+	tw.Render()
+}
+
+func PrintEPResults(
+	tm float64,
+	m int,
+	gc float64,
+	sx float64,
+	sy float64,
+	nq int,
+	q []float64,
+) {
+	tableHeader := table.Row{"EP Benchmark Results"}
+	tableRows := []table.Row{
+		{"CPU Time", tm},
+		{"N ", "2^" + strconv.Itoa(m)},
+		{"No. Gaussian Pairs", gc},
+		{"Sums", strconv.FormatFloat(sx, 'g', -1, 64) + " " + strconv.FormatFloat(sy, 'g', -1, 64)},
+	}
+
+	var tableRowsSums []table.Row
+
+	for i := 0; i < nq-1; i++ {
+		tableRowsSums = append(tableRowsSums, []interface{}{i, q[i]})
+	}
+
+	tw := table.NewWriter()
+	tw.SetStyle(table.StyleLight)
+	tw.SetOutputMirror(os.Stdout)
+	tw.AppendHeader(tableHeader)
+	tw.AppendRows(tableRows)
+	tw.AppendSeparator()
+	tw.AppendRow([]interface{}{"Counts"})
+	tw.AppendRows(tableRowsSums)
+	tw.Render()
 }
