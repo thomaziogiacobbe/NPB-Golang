@@ -1,4 +1,4 @@
-package main
+package EP
 
 import (
 	npb "NPB-Golang/commons"
@@ -12,7 +12,7 @@ type ResultData struct {
 	qResult  [NQ]float64
 }
 
-func parallelEP(
+func ParallelEP(
 	np int,
 	an float64,
 	sx *float64,

@@ -1,4 +1,4 @@
-package main
+package EP
 
 import (
 	npb "NPB-Golang/commons"
@@ -23,7 +23,7 @@ const (
 	NK_PLUS = (2 * NK) + 1
 )
 
-func main() {
+func ExecEP() {
 	if len(os.Args) <= 1 {
 		fmt.Println("Invalid number of arguments")
 		os.Exit(1)
@@ -76,7 +76,7 @@ func main() {
 	sx = 0.0
 	sy = 0.0
 
-	parallelEP(np, an, &sx, &sy, q[:], &tt)
+	ParallelEP(np, an, &sx, &sy, q[:], &tt)
 
 	for i := 0; i < NQ-1; i++ {
 		gc = gc + q[i]
