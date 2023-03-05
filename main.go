@@ -6,4 +6,6 @@ import (
 
 func main() {
 	ep.ExecEP()
+	ep.ExecEP2()
+	ep.ExecEP3()
 }
