@@ -121,10 +121,12 @@ func ParallelEP2(
 
 	start := time.Now()
 	defer getExecTime(tt, &start)
-	for k := 1; k <= np; k += runtime.NumCPU() {
+	//var leftover = np % runtime.NumCPU()
+	var totalCalls = np/runtime.NumCPU() + np%runtime.NumCPU()
+	for k := 0; k < totalCalls; k++ {
 		go func(k int) {
 			for i := 0; i < runtime.NumCPU(); i++ {
-				epParallelBlock(k + i)
+				epParallelBlock(k*runtime.NumCPU() + 1 + i)
 			}
 		}(k)
 	}
@@ -156,10 +158,11 @@ func ParallelEP3(
 
 	start := time.Now()
 	defer getExecTime(tt, &start)
-	for k := 1; k <= np; k += runtime.NumCPU() {
+	var totalCalls = np/runtime.NumCPU() + np%runtime.NumCPU()
+	for k := 0; k < totalCalls; k++ {
 		wg.Add(runtime.NumCPU())
 		for i := 0; i < runtime.NumCPU(); i++ {
-			go epParallelBlock(k + i)
+			go epParallelBlock(k*runtime.NumCPU() + 1 + i)
 		}
 		wg.Wait()
 	}
