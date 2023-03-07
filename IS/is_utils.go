@@ -42,3 +42,29 @@ func getNPBClass(class string) {
 	num_keys = total_keys
 	size_of_buffers = num_keys
 }
+
+func initializeVerificationArrays(class string) {
+	for i := 0; i < TEST_ARRAY_SIZE; i++ {
+		switch class {
+		case "S":
+			test_index_array[i] = S_test_index_array[i]
+			test_rank_array[i] = S_test_rank_array[i]
+		case "A":
+			test_index_array[i] = A_test_index_array[i]
+			test_rank_array[i] = A_test_rank_array[i]
+		case "W":
+			test_index_array[i] = W_test_index_array[i]
+			test_rank_array[i] = W_test_rank_array[i]
+		case "B":
+			test_index_array[i] = B_test_index_array[i]
+			test_rank_array[i] = B_test_rank_array[i]
+		case "C":
+			test_index_array[i] = C_test_index_array[i]
+			test_rank_array[i] = C_test_rank_array[i]
+		case "D":
+			test_index_array[i] = D_test_index_array[i]
+			test_rank_array[i] = D_test_rank_array[i]
+		}
+
+	}
+}
