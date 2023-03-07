@@ -1,8 +1,8 @@
 package IS
 
 var (
-	total_keys_log    int
-	max_key_log       int
+	total_keys_log_2  int
+	max_key_log_2     int
 	num_buckets_log_2 int
 	total_keys        int
 	max_keys          int
@@ -14,5 +14,12 @@ var (
 )
 
 func ExecIS() {
+	var (
+		i, iteration int
+		timecounter  float64
+	)
+
+	//TODO: Initialize the verification arrays if a valid class
+	//TODO: IS print
 
 }
