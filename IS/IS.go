@@ -9,8 +9,11 @@ var (
 	num_buckets       int
 	num_keys          int
 	size_of_buffers   int
-	max_iterations    int
-	test_array_size   int
+)
+
+const (
+	MAX_ITERATIONS  = 10
+	TEST_ARRAY_SIZE = 5
 )
 
 func ExecIS() {
