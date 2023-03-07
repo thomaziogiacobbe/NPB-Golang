@@ -24,12 +24,12 @@ const (
 )
 
 func ExecEP() {
-	if len(os.Args) <= 1 {
+	if len(os.Args) <= 2 {
 		fmt.Println("Invalid number of arguments")
 		os.Exit(1)
 	}
 
-	args := os.Args[1:]
+	args := os.Args[2:]
 	getNPBClass(args[0])
 
 	MM = M - MK
