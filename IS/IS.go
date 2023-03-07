@@ -48,10 +48,15 @@ func ExecIS() {
 	//TODO: Initialize the verification arrays if a valid class
 	//TODO: IS print
 
-	//TODO: create_seq
-	/* Generate random number sequence and subsequent keys on all procs */
+	//TODO: create_seq (has 1 parallel block)
+	/* "Generate random number sequence and subsequent keys on all procs" */
 	/* ... */
 	/* Wait, does the variables keep existing after the parallel block's end? */
 	//create_seq(314159265.00 /* Random number gen seed */,
 	//	1220703125.00 /* Random number gen mult */);
+
+	//TODO: alloc_key_buff (has 1 parallel instruction)
+	//TODO: rank (it's the main parallel block)
+	//TODO: full_verify (has 2 parallel instructions)
+	//TODO: print results (values and time)
 }
