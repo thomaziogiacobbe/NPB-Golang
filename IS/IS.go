@@ -1,5 +1,10 @@
 package IS
 
+import (
+	"fmt"
+	"os"
+)
+
 var (
 	total_keys_log_2  int
 	max_key_log_2     int
@@ -45,8 +50,13 @@ func ExecIS() {
 		timecounter  float64
 	)
 
-	//TODO: Initialize the verification arrays if a valid class
-	//TODO: IS print
+	args := os.Args[2:]
+	getNPBClass(args[0])
+	initializeVerificationArrays(args[0])
+
+	fmt.Println("\n\n NAS Parallel Benchmarks 4.1 Parallel Golang version - IS Benchmark\n")
+	fmt.Println(" Size: ", total_keys, " (class ", args[0], ")\n")
+	fmt.Println(" Iterations: ", MAX_ITERATIONS, "\n")
 
 	//TODO: create_seq (has 1 parallel block)
 	/* "Generate random number sequence and subsequent keys on all procs" */
