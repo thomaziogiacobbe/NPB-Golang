@@ -68,3 +68,13 @@ func initializeVerificationArrays(class string) {
 
 	}
 }
+
+func FindMySeed(
+	kn int,
+	np int,
+	nn int32,
+	s float64,
+	a float64,
+) {
+
+}
