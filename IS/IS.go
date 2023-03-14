@@ -48,16 +48,16 @@ var (
 )
 
 var (
-	total_keys_log_2  int
-	max_key_log_2     int
-	num_buckets_log_2 int
+	total_keys_log_2  int64
+	max_key_log_2     int64
+	num_buckets_log_2 int64
 )
 
 var (
-	max_key         int
-	num_buckets     int
-	num_keys        int
-	size_of_buffers int
+	max_key         int64
+	num_buckets     int64
+	num_keys        int64
+	size_of_buffers int64
 )
 
 var total_keys int64
