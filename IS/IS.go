@@ -42,7 +42,7 @@ var (
 	key_array           []int64 //size = size_of_buffers
 	key_buff1           []int64 //size = max_key
 	key_buff2           []int64 //size = size_of_buffers
-	partial_verify_vals [TEST_ARRAY_SIZE]int64
+	partial_verify_vals []int64
 	/* originally a pointer to pointer */
 	key_buff1_aptr [][]int64
 )
@@ -90,27 +90,46 @@ var (
 
 func ExecIS() {
 	var (
-		i, iteration, n_threads int
-		timecounter             float64
+		n_threads    int
+		i, iteration int
+		timecounter  float64
 	)
 
 	args := os.Args[2:]
 	getNPBClass(args[0])
 	initializeVerificationArrays(args[0])
 
-	fmt.Println("\n\n NAS Parallel Benchmarks 4.1 Parallel Golang version - IS Benchmark\n")
-	fmt.Println(" Size: ", total_keys, " (class ", args[0], ")\n")
+	//TODO: verify array allocations
+	key_array = make([]int64, size_of_buffers, size_of_buffers)
+	key_buff1 = make([]int64, max_key, max_key)
+	key_buff2 = make([]int64, size_of_buffers, size_of_buffers)
+	partial_verify_vals = make([]int64, TEST_ARRAY_SIZE, TEST_ARRAY_SIZE)
+
+	fmt.Println("\n\n NAS Parallel Benchmarks 4.1 Parallel Golang version - IS Benchmark")
+	fmt.Println(" Size: ", total_keys, " (class ", args[0], ")")
 	fmt.Println(" Iterations: ", MAX_ITERATIONS, "\n")
 
-	//TODO: create_seq (has 1 parallel block)
+	CreateSeq(314159265.00 /* Random number gen seed */, 1220703125.00 /* Random number gen mult */)
+
 	/* "Generate random number sequence and subsequent keys on all procs" */
 	/* ... */
 	/* Wait, does the variables keep existing after the parallel block's end? */
-	//create_seq(314159265.00 /* Random number gen seed */,
-	//	1220703125.00 /* Random number gen mult */);
 
-	//TODO: alloc_key_buff (has 1 parallel instruction)
+	//TODO: finish alloc_key_buff, function inlined
 	n_threads = runtime.NumCPU()
+	bucket_size = make([][]int64, 0, n_threads)
+
+	for iter := 0; iter < n_threads; iter++ {
+		temp := make([]int64, num_buckets)
+		bucket_size = append(bucket_size, temp)
+	}
+
+	for iter := int64(0); iter < num_keys; iter++ {
+		go func(iter int) {
+			key_buff2[iter] = 0
+		}(int(iter))
+	}
+
 	//TODO: rank (it's the main parallel block)
 	//TODO: full_verify (has 2 parallel instructions)
 	//TODO: print results (values and time)
