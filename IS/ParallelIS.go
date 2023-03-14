@@ -22,19 +22,23 @@ func CreateSeq(
 	myid = id
 	num_procs = runtime.NumCPU()
 
-	mq = int64((num_keys + num_procs - 1) / num_procs)
+	mq = (num_keys + int64(num_procs) - 1) / int64(num_procs)
 	k1 = mq * int64(myid)
 	k2 = k1 + mq
-	if k2 > int64(num_keys) {
-		k2 = int64(num_keys)
+	if k2 > num_keys {
+		k2 = num_keys
 	}
 	FindMySeed(myid, num_procs, int32(4*num_keys), seed, an)
-	k = int64(max_key / 4)
+	k = max_key / 4
 	for i := k1; i < k2; i++ {
 		x = npb.Randlc(&s, an)
 		x += npb.Randlc(&s, an)
 		x += npb.Randlc(&s, an)
 		x += npb.Randlc(&s, an)
-		key_array[i] = float64(k) * x
+		key_array[i] = int64(float64(k) * x)
 	}
+}
+
+func Rank() {
+
 }
