@@ -8,6 +8,7 @@ import (
 func CreateSeq(
 	seed float64,
 	a float64,
+	id int,
 ) {
 	var (
 		x, s            float64
@@ -16,7 +17,6 @@ func CreateSeq(
 		an              = a
 		myid, num_procs int
 		mq              int64
-		id              int
 	)
 
 	myid = id
