@@ -1,6 +1,7 @@
 package IS
 
 import (
+	npb "NPB-Golang/commons"
 	"fmt"
 	"os"
 )
@@ -75,6 +76,32 @@ func FindMySeed(
 	nn int32,
 	s float64,
 	a float64,
-) {
+) float64 {
+	var (
+		t1, t2         float64
+		mq, nq, kk, ik int32
+	)
+	if kn == 0 {
+		return s
+	}
+	mq = (nn/4 + int32(np) - 1) / int32(np)
+	nq = mq * 4 * int32(kn)
 
+	t1 = s
+	t2 = a
+	kk = nq
+
+	for kk > 1 {
+		ik = kk / 2
+		if 2*ik == kk {
+			npb.Randlc(&t2, t2)
+			kk = ik
+		} else {
+			npb.Randlc(&t1, t2)
+			kk--
+		}
+	}
+	npb.Randlc(&t1, t2)
+
+	return t1
 }
