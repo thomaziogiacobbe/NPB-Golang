@@ -39,6 +39,18 @@ func CreateSeq(
 	}
 }
 
-func Rank() {
+func Rank(iteration int) {
+	var (
+		i, k                        int64
+		key_buff_ptr, key_buff_ptr2 *int64
+		shift                       = max_key_log_2 - num_buckets_log_2
+		num_bucket_keys             = int32(1) << shift
+	)
+	key_array[iteration] = int64(iteration)
+	key_array[iteration+MAX_ITERATIONS] = max_key - int64(iteration)
+	//TODO: converter []int64 pra *int64, ou alterar o tipo da variavel aqui
+	//key_buff_ptr2 = key_buff2
+	//key_buff_ptr = key_buff1
 
+	//TODO: partial verify
 }
