@@ -28,7 +28,7 @@ func CreateSeq(
 	if k2 > num_keys {
 		k2 = num_keys
 	}
-	FindMySeed(myid, num_procs, int32(4*num_keys), seed, an)
+	s = FindMySeed(myid, num_procs, int32(4*num_keys), seed, an)
 	k = max_key / 4
 	for i := k1; i < k2; i++ {
 		x = npb.Randlc(&s, an)
