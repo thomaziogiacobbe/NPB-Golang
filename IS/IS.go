@@ -3,24 +3,68 @@ package IS
 import (
 	"fmt"
 	"os"
+	"runtime"
 )
 
-var (
-	total_keys_log_2  int
-	max_key_log_2     int
-	num_buckets_log_2 int
-	total_keys        int
-	max_key           int
-	num_buckets       int
-	num_keys          int
-	size_of_buffers   int
-)
+/************************************************/
+/* 	This code does not define INT_TYPE 			*/
+/* 	instead it assumes all INT_TYPE as int64 	*/
+/************************************************/
 
 const (
 	MAX_ITERATIONS  = 10
 	TEST_ARRAY_SIZE = 5
 )
 
+/* used by full_verify to get */
+/* copies of rank info */
+var (
+	key_buff_ptr_global *int64
+	passed_verification bool
+)
+
+/* #define USE_BUCKETS */
+/* USE_BUCKETS is always defined */
+/* because of that, it is never declared */
+var (
+	/* bucket_ptrs is originally threadprivate */
+	/* and should be passed as parameter to any go func */
+	bucket_ptrs []int64
+	/* originally a pointer to pointer */
+	bucket_size [][]int64
+)
+
+/************************************/
+/* These are the three main arrays. */
+/* See SIZE_OF_BUFFERS def below    */
+/************************************/
+var (
+	key_array           []int64 //size = size_of_buffers
+	key_buff1           []int64 //size = max_key
+	key_buff2           []int64 //size = size_of_buffers
+	partial_verify_vals [TEST_ARRAY_SIZE]int64
+	/* originally a pointer to pointer */
+	key_buff1_aptr [][]int64
+)
+
+var (
+	total_keys_log_2  int
+	max_key_log_2     int
+	num_buckets_log_2 int
+)
+
+var (
+	max_key         int
+	num_buckets     int
+	num_keys        int
+	size_of_buffers int
+)
+
+var total_keys int64
+
+/**********************/
+/* Partial verify info */
+/**********************/
 var (
 	test_index_array [TEST_ARRAY_SIZE]int
 	test_rank_array  [TEST_ARRAY_SIZE]int
@@ -46,8 +90,8 @@ var (
 
 func ExecIS() {
 	var (
-		i, iteration int
-		timecounter  float64
+		i, iteration, n_threads int
+		timecounter             float64
 	)
 
 	args := os.Args[2:]
@@ -66,6 +110,7 @@ func ExecIS() {
 	//	1220703125.00 /* Random number gen mult */);
 
 	//TODO: alloc_key_buff (has 1 parallel instruction)
+	n_threads = runtime.NumCPU()
 	//TODO: rank (it's the main parallel block)
 	//TODO: full_verify (has 2 parallel instructions)
 	//TODO: print results (values and time)
