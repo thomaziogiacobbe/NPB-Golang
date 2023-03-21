@@ -1,6 +1,7 @@
 package commons
 
 import (
+	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"os"
 	"runtime"
@@ -17,6 +18,7 @@ func Print_results(
 	mops float64,
 	optype string,
 	passedVerification bool,
+	fileToWrite string,
 ) {
 	var verifyString string
 	if passedVerification {
@@ -44,6 +46,14 @@ func Print_results(
 	tw.AppendHeader(tableHeader)
 	tw.AppendRows(tableRows)
 	tw.Render()
+
+	file, err := os.OpenFile(fileToWrite, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "file ", fileToWrite, " could not be open/created")
+	} else {
+		file.WriteString(strconv.FormatFloat((*tt).Seconds(), 'g', -1, 64) + "\n")
+	}
 }
 
 func PrintEPResults(

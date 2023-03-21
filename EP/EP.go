@@ -32,6 +32,11 @@ func ExecEP() {
 	args := os.Args[2:]
 	getNPBClass(args[0])
 
+	var fileToWrite string
+	if args[1] == "-f" {
+		fileToWrite = args[2] + ".txt"
+	}
+
 	MM = M - MK
 	NN = 1 << MM
 
@@ -103,5 +108,6 @@ func ExecEP() {
 		&tt,
 		mops,
 		"Random numbers generated",
-		verified)
+		verified,
+		fileToWrite)
 }
