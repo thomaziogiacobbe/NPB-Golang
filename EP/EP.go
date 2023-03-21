@@ -33,8 +33,16 @@ func ExecEP() {
 	getNPBClass(args[0])
 
 	var fileToWrite string
-	if args[1] == "-f" {
-		fileToWrite = args[2] + ".txt"
+	if len(os.Args) >= 4 {
+		if args[1] != "-f" {
+			fmt.Fprintln(os.Stderr, "Invalid arguments")
+			return
+		}
+		if len(os.Args) >= 5 {
+			fileToWrite = args[2] + ".txt"
+		} else {
+			fileToWrite = "EP." + args[0] + ".txt"
+		}
 	}
 
 	MM = M - MK
