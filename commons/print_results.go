@@ -47,12 +47,14 @@ func Print_results(
 	tw.AppendRows(tableRows)
 	tw.Render()
 
-	file, err := os.OpenFile(fileToWrite, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if len(fileToWrite) != 0 {
+		file, err := os.OpenFile(fileToWrite, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "file ", fileToWrite, " could not be open/created")
-	} else {
-		file.WriteString(strconv.FormatFloat((*tt).Seconds(), 'g', -1, 64) + "\n")
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "file ", fileToWrite, " could not be open/created")
+		} else {
+			file.WriteString(strconv.FormatFloat((*tt).Seconds(), 'g', -1, 64) + "\n")
+		}
 	}
 }
 
