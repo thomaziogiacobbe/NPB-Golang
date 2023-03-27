@@ -3,7 +3,7 @@ package IS
 import (
 	"fmt"
 	"os"
-	"runtime"
+	"sync"
 )
 
 /************************************************/
@@ -90,9 +90,10 @@ var (
 
 func ExecIS() {
 	var (
-		n_threads    int
-		i, iteration int
-		timecounter  float64
+		n_threads      int
+		i, iteration   int
+		timecounter    float64
+		groupCreateSec sync.WaitGroup
 	)
 
 	args := os.Args[2:]
@@ -109,12 +110,13 @@ func ExecIS() {
 	fmt.Println(" Size: ", total_keys, " (class ", args[0], ")")
 	fmt.Println(" Iterations: ", MAX_ITERATIONS, "\n")
 
-	//TODO: call CreateSeq via go command for each cpu
-	CreateSeq(314159265.00 /* Random number gen seed */, 1220703125.00 /* Random number gen mult */, 0)
-	//fmt.Println(key_array[:100])
-
+	groupCreateSec.Add(n_threads)
+	for i := 0; i < n_threads; i++ {
+		CreateSeq(314159265.00, 1220703125.00, i, &groupCreateSec)
+		//fmt.Println(key_array[:100])
+	}
+	groupCreateSec.Wait()
 	//TODO: finish alloc_key_buff, function inlined
-	n_threads = runtime.NumCPU()
 	bucket_size = make([][]int64, 0, n_threads)
 
 	for iter := 0; iter < n_threads; iter++ {
