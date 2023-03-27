@@ -130,7 +130,7 @@ func Rank(iteration int) {
 				k1, k2 int32
 				m      int64
 			)
-			k1 = i * num_bucket_keys
+			k1 = int32(i) * num_bucket_keys
 			k2 = k1 + num_bucket_keys
 			for k := k1; k < k2; k++ {
 				key_buff_ptr[k] = 0

@@ -91,8 +91,8 @@ var (
 func ExecIS() {
 	var (
 		n_threads      int
-		i, iteration   int
-		timecounter    float64
+		_, _           int
+		_              float64
 		groupCreateSec sync.WaitGroup
 	)
 
