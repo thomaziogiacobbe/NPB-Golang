@@ -59,97 +59,94 @@ func Rank(iteration int) {
 		partial_verify_vals[i] = key_array[test_index_array[i]]
 	}
 
-	group.Add(int(int64(num_procs) * num_keys))
-	for myid := 0; myid < num_procs; myid++ {
-		for i := int64(0); i < num_keys; i++ {
-			go func(myid int, it int64) {
+	group.Add(int(num_keys))
+	for i := int64(0); i < num_keys; i++ {
+		go func(it int64) {
+			for myid := 0; myid < num_procs; myid++ {
 				bucket_size[myid][key_array[it]>>shift]++
-				defer group.Done()
-			}(myid, i)
-		}
-	}
-	group.Wait()
-	group.Add(int(int64(num_procs) * num_buckets))
-	for myid := 0; myid < num_procs; myid++ {
-		func(bucketPtrs []int64) {
-			for i := int64(0); i < num_buckets; i++ {
-				go func(myid int, it int64) {
-					for k := 0; k < num_procs; k++ {
-						if k < myid {
-							bucketPtrs[it] += bucket_size[k][it]
-						} else {
-							bucketPtrs[it] += bucket_size[k][it-1]
-						}
-					}
-					defer group.Done()
-				}(myid, i)
 			}
-		}(bucket_ptrs[:])
-		//TODO: return bucket_ptrs to outside this lambda
+			defer group.Done()
+		}(i)
 	}
 	group.Wait()
 	group.Add(int(num_buckets))
-	for it := int64(1); it < num_buckets; it++ {
+	for i := int64(0); i < num_buckets; i++ {
 		go func(it int64) {
-			//TODO: update bucket_ptrs outside this lambda
-			bucket_ptrs[it] += bucket_ptrs[it-1]
+			for myid := 0; myid < num_procs; myid++ {
+				for k := 0; k < num_procs; k++ {
+					if k < myid {
+						bucket_ptrs[myid][it] += bucket_size[k][it]
+					} else {
+						bucket_ptrs[myid][it] += bucket_size[k][it-1]
+					}
+				}
+			}
 			defer group.Done()
-		}(it)
+		}(i)
+	}
+	group.Wait()
+	group.Add(num_procs)
+	for myid := 0; myid < num_procs; myid++ {
+		go func(myid int) {
+			for it := int64(1); it < num_buckets; it++ {
+				bucket_ptrs[myid][it] += bucket_ptrs[myid][it-1]
+			}
+			defer group.Done()
+		}(myid)
 	}
 	group.Wait()
 	group.Add(int(num_keys))
 	for it := int64(0); it < num_keys; it++ {
 		go func(it int64) {
-			k = key_array[it]
-			//TODO: get bucket_ptrs from outside this lambda
-			key_buff2[bucket_ptrs[k>>shift]] = k
-			bucket_ptrs[k>>shift]++
+			for myid := 0; myid < num_procs; myid++ {
+				k = key_array[it]
+				key_buff2[bucket_ptrs[myid][k>>shift]] = k
+				bucket_ptrs[myid][k>>shift]++
+			}
 			defer group.Done()
 		}(it)
 	}
 	group.Wait()
-	for myid := 0; myid < num_procs; myid++ {
-		if myid < num_procs-1 {
-			group.Add(int(num_buckets))
-			for i := int64(0); i < num_buckets; i++ {
-				go func(myid int, it int64) {
-					for k := myid + 1; k < num_procs; k++ {
-						//TODO: update bucket_ptrs outside this lambda
-						bucket_ptrs[it] += bucket_size[k][it]
-					}
-					defer group.Done()
-				}(myid, i)
-			}
-		}
-	}
-	group.Wait()
 	group.Add(int(num_buckets))
-	for it := int64(0); it < num_buckets; it++ {
-		go func(i int64) {
-			var (
-				k1, k2 int32
-				m      int64
-			)
-			k1 = i * num_bucket_keys
-			k2 = k1 + num_bucket_keys
-			for k := k1; k < k2; k++ {
-				key_buff_ptr[k] = 0
-			}
-			if i > 0 {
-				//TODO: get bucket_ptrs from outside this lambda
-				m = bucket_ptrs[i-1]
-			} else {
-				m = 0
-			}
-			for k = m; k < bucket_ptrs[i]; k++ {
-				key_buff_ptr[key_buff_ptr2[k]]++
-			}
-			key_buff_ptr[k1] += m
-			for k := k1 + 1; k < k2; k++ {
-				key_buff_ptr[k] += key_buff_ptr[k-1]
+	for i := int64(0); i < num_buckets; i++ {
+		go func(it int64) {
+			for myid := 0; myid < num_procs-1; myid++ {
+				for k := myid + 1; k < num_procs; k++ {
+					bucket_ptrs[myid][it] += bucket_size[k][it]
+				}
 			}
 			defer group.Done()
 		}(i)
+	}
+	group.Wait()
+	group.Add(num_procs * int(num_buckets))
+	for myid := 0; myid < num_procs; myid++ {
+		for it := int64(0); it < num_buckets; it++ {
+			go func(myid int, i int64) {
+				var (
+					k1, k2 int32
+					m      int64
+				)
+				k1 = i * num_bucket_keys
+				k2 = k1 + num_bucket_keys
+				for k := k1; k < k2; k++ {
+					key_buff_ptr[k] = 0
+				}
+				if i > 0 {
+					m = bucket_ptrs[myid][i-1]
+				} else {
+					m = 0
+				}
+				for k = m; k < bucket_ptrs[myid][i]; k++ {
+					key_buff_ptr[key_buff_ptr2[k]]++
+				}
+				key_buff_ptr[k1] += m
+				for k := k1 + 1; k < k2; k++ {
+					key_buff_ptr[k] += key_buff_ptr[k-1]
+				}
+				defer group.Done()
+			}(myid, i)
+		}
 	}
 	group.Wait()
 
