@@ -51,6 +51,7 @@ func Rank(iteration int) {
 		num_procs                   = runtime.NumCPU()
 		group                       sync.WaitGroup
 	)
+	//TODO: refactor these declarations to matrices of num_procs when local to threads
 	key_array[iteration] = int64(iteration)
 	key_array[iteration+MAX_ITERATIONS] = max_key - int64(iteration)
 	key_buff_ptr2 = key_buff2[:]
