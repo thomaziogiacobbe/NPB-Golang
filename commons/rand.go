@@ -7,46 +7,31 @@ const (
 	t46 = t23 * t23
 )
 
+// TODO: verificar o pq essa funcao fica mais lenta usando a formula
 func Vranlc(n int, xSeed *float64, a float64, y []float64) {
-
-	var x, t1, t2, t3, t4, a1, a2, x1, x2, z float64
-
-	t1 = r23 * a
-	a1 = float64(int(t1))
-	a2 = a - t23*a1
-	x = *xSeed
+	ux := uint64(*xSeed)
+	ua := uint64(a)
+	const ut46 = uint64(t46)
+	const it46 = 1 / t46
 
 	for i := 0; i < n; i++ {
-		t1 = r23 * x
-		x1 = float64(int(t1))
-		x2 = x - t23*x1
-		t1 = a1*x2 + a2*x1
-		t2 = float64(int(r23 * t1))
-		z = t1 - t23*t2
-		t3 = t23*z + a2*x2
-		t4 = float64(int(r46 * t3))
-		x = t3 - t46*t4
-		y[i] = r46 * x
+		ux = ux * ua % ut46
+		y[i] = it46 * float64(ux)
 	}
-	*xSeed = x
+	*xSeed = float64(ux)
 }
 
+// TODO: verificar se para outras classes usar a formula pode causar problema
 func Randlc(x *float64, a float64) float64 {
-	var t1, t2, t3, t4, a1, a2, x1, x2, z float64
-
-	t1 = r23 * a
-	a1 = float64(int(t1))
-	a2 = a - t23*a1
-
-	t1 = r23 * (*x)
-	x1 = float64(int(t1))
-	x2 = (*x) - t23*x1
-	t1 = a1*x2 + a2*x1
-	t2 = float64(int(r23 * t1))
-	z = t1 - t23*t2
-	t3 = t23*z + a2*x2
-	t4 = float64(int(r46 * t3))
-	*x = t3 - t46*t4
-
-	return r46 * (*x)
+	ux := uint64(*x) * uint64(a) % uint64(t46)
+	*x = float64(ux)
+	const it46 = 1 / t46
+	ret := it46 * (*x)
+	return ret
 }
+
+/* formula original do jeito mais simples
+   causa problemas nas operacoes com float
+*x = math.Mod(a*(*x), t46)
+return math.Pow(2, -46) * (*x)
+*/

@@ -67,20 +67,14 @@ func ExecEP() {
 
 	np = NN
 
-	temp := []float64{dum[2]}
-	npb.Vranlc(0, &dum[0], dum[1], temp)
 	dum[0] = npb.Randlc(&dum[1], dum[2])
 	for i := 0; i < NK_PLUS; i++ {
 		x[i] = -1.0e99
 	}
-	mops = math.Log(math.Sqrt(math.Abs(math.Max(1.0, 1.0))))
-
-	t1 = A
-	npb.Vranlc(0, &t1, A, x[:])
 
 	t1 = A
 
-	for i := 0; i < MK+1; i++ {
+	for i := 0; i <= MK; i++ {
 		npb.Randlc(&t1, t1)
 	}
 
