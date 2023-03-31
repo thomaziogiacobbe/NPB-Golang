@@ -20,7 +20,7 @@ const (
 /* copies of rank info */
 var (
 	key_buff_ptr_global *int64
-	passed_verification bool
+	passed_verification int
 )
 
 /* #define USE_BUCKETS */
@@ -131,6 +131,26 @@ func ExecIS() {
 	//when it's declared, it already initializes with value 0
 
 	//TODO: rank (it's the main parallel block)
+	Rank(1)
+	passed_verification = 0
+
+	if args[0] != "S" {
+		fmt.Println("\n   Iteration")
+	}
+
+	for iteration := 1; iteration <= MAX_ITERATIONS; iteration++ {
+		if args[0] != "S" {
+			fmt.Println("\t\t", iteration)
+		}
+		Rank(iteration)
+	}
+
 	//TODO: full_verify (has 2 parallel instructions)
+	//full_verify()
+
+	if passed_verification != 5*MAX_ITERATIONS+1 {
+		passed_verification = 0
+	}
+
 	//TODO: print results (values and time)
 }
