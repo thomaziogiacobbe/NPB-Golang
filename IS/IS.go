@@ -29,7 +29,7 @@ var (
 var (
 	/* bucket_ptrs is originally threadprivate */
 	/* and should be passed as parameter to any go func */
-	bucket_ptrs []int64
+	bucket_ptrs [][]int64
 	/* originally a pointer to pointer */
 	bucket_size [][]int64
 )
@@ -117,10 +117,13 @@ func ExecIS() {
 	}
 	groupCreateSec.Wait()
 	//TODO: finish alloc_key_buff, function inlined
+	bucket_ptrs = make([][]int64, 0, n_threads)
 	bucket_size = make([][]int64, 0, n_threads)
 
 	for iter := 0; iter < n_threads; iter++ {
 		temp := make([]int64, num_buckets)
+		bucket_ptrs = append(bucket_size, temp)
+		temp = make([]int64, num_buckets)
 		bucket_size = append(bucket_size, temp)
 	}
 
