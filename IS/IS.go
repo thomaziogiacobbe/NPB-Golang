@@ -110,13 +110,14 @@ func ExecIS() {
 	fmt.Println(" Size: ", total_keys, " (class ", args[0], ")")
 	fmt.Println(" Iterations: ", MAX_ITERATIONS, "\n")
 
+	//TODO: create_seq has 1 counter
 	groupCreateSec.Add(n_threads)
 	for i := 0; i < n_threads; i++ {
 		CreateSeq(314159265.00, 1220703125.00, i, &groupCreateSec)
 		//fmt.Println(key_array[:100])
 	}
 	groupCreateSec.Wait()
-	//TODO: finish alloc_key_buff, function inlined
+
 	bucket_ptrs = make([][]int64, 0, n_threads)
 	bucket_size = make([][]int64, 0, n_threads)
 
@@ -130,7 +131,7 @@ func ExecIS() {
 	//parallel for is not needed for array initialization
 	//when it's declared, it already initializes with value 0
 
-	//TODO: rank (it's the main parallel block)
+	//TODO: rank has 1 counter
 	Rank(1)
 	passed_verification = 0
 
@@ -146,6 +147,7 @@ func ExecIS() {
 	}
 
 	//TODO: full_verify (has 2 parallel instructions)
+	//TODO: full_verify has 1 counter
 	//full_verify()
 
 	if passed_verification != 5*MAX_ITERATIONS+1 {

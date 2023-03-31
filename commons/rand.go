@@ -7,7 +7,6 @@ const (
 	t46 = t23 * t23
 )
 
-// TODO: verificar o pq essa funcao fica mais lenta usando a formula
 func Vranlc(n int, xSeed *float64, a float64, y []float64) {
 	ux := uint64(*xSeed)
 	ua := uint64(a)
