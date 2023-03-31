@@ -44,7 +44,7 @@ func CreateSeq(
 
 func Rank(iteration int) {
 	var (
-		i, k                        int64
+		i                           int64
 		key_buff_ptr, key_buff_ptr2 []int64
 		shift                       = max_key_log_2 - num_buckets_log_2
 		num_bucket_keys             = int32(1) << shift
@@ -56,12 +56,12 @@ func Rank(iteration int) {
 	key_array[iteration+MAX_ITERATIONS] = max_key - int64(iteration)
 	key_buff_ptr2 = key_buff2[:]
 	key_buff_ptr = key_buff1[:]
-	for i := 0; i < TEST_ARRAY_SIZE; i++ {
+	for i = 0; i < TEST_ARRAY_SIZE; i++ {
 		partial_verify_vals[i] = key_array[test_index_array[i]]
 	}
 
 	group.Add(int(num_keys))
-	for i := int64(0); i < num_keys; i++ {
+	for i = int64(0); i < num_keys; i++ {
 		go func(it int64) {
 			for myid := 0; myid < num_procs; myid++ {
 				bucket_size[myid][key_array[it]>>shift]++
@@ -71,7 +71,7 @@ func Rank(iteration int) {
 	}
 	group.Wait()
 	group.Add(int(num_buckets))
-	for i := int64(0); i < num_buckets; i++ {
+	for i = int64(0); i < num_buckets; i++ {
 		go func(it int64) {
 			for myid := 0; myid < num_procs; myid++ {
 				for k := 0; k < num_procs; k++ {
@@ -100,7 +100,7 @@ func Rank(iteration int) {
 	for it := int64(0); it < num_keys; it++ {
 		go func(it int64) {
 			for myid := 0; myid < num_procs; myid++ {
-				k = key_array[it]
+				k := key_array[it]
 				key_buff2[bucket_ptrs[myid][k>>shift]] = k
 				bucket_ptrs[myid][k>>shift]++
 			}
@@ -109,7 +109,7 @@ func Rank(iteration int) {
 	}
 	group.Wait()
 	group.Add(int(num_buckets))
-	for i := int64(0); i < num_buckets; i++ {
+	for i = int64(0); i < num_buckets; i++ {
 		go func(it int64) {
 			for myid := 0; myid < num_procs-1; myid++ {
 				for k := myid + 1; k < num_procs; k++ {
@@ -138,7 +138,7 @@ func Rank(iteration int) {
 				} else {
 					m = 0
 				}
-				for k = m; k < bucket_ptrs[myid][i]; k++ {
+				for k := m; k < bucket_ptrs[myid][i]; k++ {
 					key_buff_ptr[key_buff_ptr2[k]]++
 				}
 				key_buff_ptr[k1] += m
