@@ -60,23 +60,36 @@ func Rank(iteration int64) {
 		partial_verify_vals[i] = key_array[test_index_array[i]]
 	}
 
+	bucket_size = make([][]int64, 0, num_procs)
+	for iter := 0; iter < num_procs; iter++ {
+		temp := make([]int64, num_buckets)
+		bucket_size = append(bucket_size, temp)
+	}
+
 	group.Add(int(num_keys))
-	for i = int64(0); i < num_keys; i++ {
-		go func(it int64) {
-			for myid := 0; myid < num_procs; myid++ {
-				bucket_size[myid][key_array[it]>>shift]++
-			}
+	for it := int64(0); it < num_keys; it += int64(num_procs) {
+		bucketKey := func(myid int64, it int64) {
+			bucket_size[myid][key_array[it]>>shift]++
 			defer group.Done()
-		}(i)
+		}
+		limit := int64(num_procs)
+		if it+int64(num_procs) >= num_keys {
+			limit = num_keys - it
+		}
+		for myid := int64(0); myid < limit; myid++ {
+			go bucketKey(myid, it+myid)
+		}
 	}
 	group.Wait()
 	group.Add(num_procs)
 	for myid := 0; myid < num_procs; myid++ {
 		go func(myid int) {
+			bucket_ptrs[myid][0] = 0
 			for k := 0; k < myid; k++ {
 				bucket_ptrs[myid][0] += bucket_size[k][0]
 			}
 			for it := int64(1); it < num_buckets; it++ {
+				bucket_ptrs[myid][it] = bucket_ptrs[myid][it-1]
 				for k := 0; k < num_procs; k++ {
 					if k < myid {
 						bucket_ptrs[myid][it] += bucket_size[k][it]
@@ -84,22 +97,26 @@ func Rank(iteration int64) {
 						bucket_ptrs[myid][it] += bucket_size[k][it-1]
 					}
 				}
-				bucket_ptrs[myid][it] += bucket_ptrs[myid][it-1]
 			}
 			defer group.Done()
 		}(myid)
 	}
 	group.Wait()
 	group.Add(int(num_keys))
-	for it := int64(0); it < num_keys; it++ {
-		go func(it int64) {
-			for myid := 0; myid < num_procs; myid++ {
-				k := key_array[it]
-				key_buff2[bucket_ptrs[myid][k>>shift]] = k
-				bucket_ptrs[myid][k>>shift]++
-			}
+	for it := int64(0); it < num_keys; it += int64(num_procs) {
+		bucketKey := func(myid int64, it int64) {
+			k := key_array[it]
+			key_buff2[bucket_ptrs[myid][k>>shift]] = k
+			bucket_ptrs[myid][k>>shift]++
 			defer group.Done()
-		}(it)
+		}
+		limit := int64(num_procs)
+		if it+int64(num_procs) >= num_keys {
+			limit = num_keys - it
+		}
+		for myid := int64(0); myid < limit; myid++ {
+			go bucketKey(myid, it+myid)
+		}
 	}
 	group.Wait()
 	group.Add(int(num_buckets))

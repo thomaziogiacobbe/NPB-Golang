@@ -127,7 +127,7 @@ func FullVerify() {
 				} else {
 					k1 = 0
 				}
-				for i := k1; i < bucket_ptrs[myid][j]; i++ {
+				for i = k1; i < bucket_ptrs[myid][j]; i++ {
 					key_buff_ptr_global[key_buff2[i]] -= 1
 					k = key_buff_ptr_global[key_buff2[i]]
 					key_array[k] = key_buff2[i]
