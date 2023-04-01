@@ -44,8 +44,6 @@ var (
 	key_buff1           []int64 //size = max_key
 	key_buff2           []int64 //size = size_of_buffers
 	partial_verify_vals []int64
-	/* originally a pointer to pointer */
-	key_buff1_aptr [][]int64
 )
 
 var (
@@ -92,7 +90,6 @@ var (
 func ExecIS() {
 	var (
 		n_threads      int
-		_, _           int
 		mops           float64
 		groupCreateSec sync.WaitGroup
 		tt             time.Duration
@@ -106,6 +103,8 @@ func ExecIS() {
 	key_buff2 = make([]int64, size_of_buffers)
 	partial_verify_vals = make([]int64, TEST_ARRAY_SIZE, TEST_ARRAY_SIZE)
 
+	initializeVerificationArrays(npb.Class)
+
 	fmt.Println("\n\n NAS Parallel Benchmarks 4.1 Parallel Golang version - IS Benchmark")
 	fmt.Println(" Size: ", total_keys, " (class ", npb.Class, ")")
 	fmt.Println(" Iterations: ", MAX_ITERATIONS, "\n")
@@ -113,8 +112,7 @@ func ExecIS() {
 	//TODO: create_seq has 1 counter
 	groupCreateSec.Add(n_threads)
 	for i := 0; i < n_threads; i++ {
-		CreateSeq(314159265.00, 1220703125.00, i, &groupCreateSec)
-		//fmt.Println(key_array[:100])
+		go CreateSeq(314159265.00, 1220703125.00, i, &groupCreateSec)
 	}
 	groupCreateSec.Wait()
 
@@ -139,12 +137,14 @@ func ExecIS() {
 		fmt.Println("\n   Iteration")
 	}
 
+	start := time.Now()
 	for iteration := 1; iteration <= MAX_ITERATIONS; iteration++ {
 		if npb.Class != "S" {
 			fmt.Println("\t\t", iteration)
 		}
 		Rank(iteration)
 	}
+	tt = time.Since(start)
 
 	//TODO: full_verify has 1 counter
 	FullVerify()
