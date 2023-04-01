@@ -4,7 +4,6 @@ import (
 	npb "NPB-Golang/commons"
 	"fmt"
 	"math"
-	"os"
 	"time"
 )
 
@@ -24,26 +23,7 @@ const (
 )
 
 func ExecEP() {
-	if len(os.Args) <= 2 {
-		fmt.Println("Invalid number of arguments")
-		os.Exit(1)
-	}
-
-	args := os.Args[2:]
-	getNPBClass(args[0])
-
-	var fileToWrite string
-	if len(os.Args) >= 4 {
-		if args[1] != "-f" {
-			fmt.Fprintln(os.Stderr, "Invalid arguments")
-			return
-		}
-		if len(os.Args) >= 5 {
-			fileToWrite = args[2] + ".txt"
-		} else {
-			fileToWrite = "EP." + args[0] + ".txt"
-		}
-	}
+	getNPBClass(npb.Class)
 
 	MM = M - MK
 	NN = 1 << MM
@@ -103,13 +83,12 @@ func ExecEP() {
 		q[:],
 	)
 
-	npb.Print_results("EP",
-		args[0],
+	npb.Print_results(
 		int(size),
 		nit,
 		&tt,
 		mops,
 		"Random numbers generated",
 		verified,
-		fileToWrite)
+	)
 }

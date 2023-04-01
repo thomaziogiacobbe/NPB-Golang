@@ -157,8 +157,8 @@ func Rank(iteration int) {
 			keyRank := key_buff_ptr[k-1]
 			failed := false
 			//TODO: get problem class
-			switch CLASS {
-			case 'S':
+			switch npb.Class {
+			case "S":
 				if i <= 2 {
 					if keyRank != int64(test_rank_array[i]+iteration) {
 						failed = true
@@ -173,7 +173,7 @@ func Rank(iteration int) {
 					}
 				}
 				break
-			case 'W':
+			case "W":
 				if i < 2 {
 					if keyRank != int64(test_rank_array[i]+iteration-2) {
 						failed = true
@@ -188,7 +188,7 @@ func Rank(iteration int) {
 					}
 				}
 				break
-			case 'A':
+			case "A":
 				if i <= 2 {
 					if keyRank != int64(test_rank_array[i]+iteration-1) {
 						failed = true
@@ -203,7 +203,7 @@ func Rank(iteration int) {
 					}
 				}
 				break
-			case 'B':
+			case "B":
 				if i == 1 || i == 2 || i == 4 {
 					if keyRank != int64(test_rank_array[i]+iteration) {
 						failed = true
@@ -218,7 +218,7 @@ func Rank(iteration int) {
 					}
 				}
 				break
-			case 'C':
+			case "C":
 				if i <= 2 {
 					if keyRank != int64(test_rank_array[i]+iteration) {
 						failed = true
@@ -233,7 +233,7 @@ func Rank(iteration int) {
 					}
 				}
 				break
-			case 'D':
+			case "D":
 				if i < 2 {
 					if keyRank != int64(test_rank_array[i]+iteration) {
 						failed = true

@@ -9,16 +9,19 @@ import (
 	"time"
 )
 
+var (
+	Benchmark string
+	Class     string
+	File      *os.File
+)
+
 func Print_results(
-	name string,
-	classNpb string,
 	epSize int,
 	niter int32,
 	tt *time.Duration,
 	mops float64,
 	optype string,
 	passedVerification bool,
-	fileToWrite string,
 ) {
 	var verifyString string
 	if passedVerification {
@@ -27,10 +30,10 @@ func Print_results(
 		verifyString = "UNSUCCESSFUL"
 	}
 
-	tableHeader := table.Row{name + " Benchmark Completed"}
+	tableHeader := table.Row{Benchmark + " Benchmark Completed"}
 	//TODO: others benchmarks to be defined, for now just printing size of EP
 	tableRows := []table.Row{
-		{"Class", classNpb},
+		{"Class", Class},
 		{"Size", epSize},
 		{"Number of available threads", runtime.NumCPU()},
 		{"Number of iterations", niter},
@@ -47,13 +50,10 @@ func Print_results(
 	tw.AppendRows(tableRows)
 	tw.Render()
 
-	if len(fileToWrite) != 0 {
-		file, err := os.OpenFile(fileToWrite, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-
+	if File != nil {
+		_, err := File.WriteString(strconv.FormatFloat((*tt).Seconds(), 'g', -1, 64) + "\n")
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "file ", fileToWrite, " could not be open/created")
-		} else {
-			file.WriteString(strconv.FormatFloat((*tt).Seconds(), 'g', -1, 64) + "\n")
+			_, _ = fmt.Fprintln(os.Stderr, "Could not write to file")
 		}
 	}
 }

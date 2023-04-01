@@ -1,8 +1,8 @@
 package IS
 
 import (
+	npb "NPB-Golang/commons"
 	"fmt"
-	"os"
 	"sync"
 )
 
@@ -96,9 +96,7 @@ func ExecIS() {
 		groupCreateSec sync.WaitGroup
 	)
 
-	args := os.Args[2:]
-	getNPBClass(args[0])
-	initializeVerificationArrays(args[0])
+	getNPBClass(npb.Class)
 
 	//TODO: verify array allocations
 	key_array = make([]int64, size_of_buffers)
@@ -107,7 +105,7 @@ func ExecIS() {
 	partial_verify_vals = make([]int64, TEST_ARRAY_SIZE, TEST_ARRAY_SIZE)
 
 	fmt.Println("\n\n NAS Parallel Benchmarks 4.1 Parallel Golang version - IS Benchmark")
-	fmt.Println(" Size: ", total_keys, " (class ", args[0], ")")
+	fmt.Println(" Size: ", total_keys, " (class ", npb.Class, ")")
 	fmt.Println(" Iterations: ", MAX_ITERATIONS, "\n")
 
 	//TODO: create_seq has 1 counter
@@ -135,12 +133,12 @@ func ExecIS() {
 	Rank(1)
 	passed_verification = 0
 
-	if args[0] != "S" {
+	if npb.Class != "S" {
 		fmt.Println("\n   Iteration")
 	}
 
 	for iteration := 1; iteration <= MAX_ITERATIONS; iteration++ {
-		if args[0] != "S" {
+		if npb.Class != "S" {
 			fmt.Println("\t\t", iteration)
 		}
 		Rank(iteration)
