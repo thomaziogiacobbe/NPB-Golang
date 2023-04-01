@@ -43,17 +43,17 @@ func CreateSeq(
 	}
 }
 
-func Rank(iteration int) {
+func Rank(iteration int64) {
 	var (
 		i                           int64
 		key_buff_ptr, key_buff_ptr2 []int64
 		shift                       = max_key_log_2 - num_buckets_log_2
-		num_bucket_keys             = int32(1) << shift
+		num_bucket_keys             = int64(1) << shift
 		num_procs                   = runtime.NumCPU()
 		group                       sync.WaitGroup
 	)
-	key_array[iteration] = int64(iteration)
-	key_array[iteration+MAX_ITERATIONS] = max_key - int64(iteration)
+	key_array[iteration] = iteration
+	key_array[iteration+MAX_ITERATIONS] = max_key - iteration
 	key_buff_ptr2 = key_buff2[:]
 	key_buff_ptr = key_buff1[:]
 	for i = 0; i < TEST_ARRAY_SIZE; i++ {
@@ -125,7 +125,7 @@ func Rank(iteration int) {
 		for it := int64(0); it < num_buckets; it++ {
 			go func(myid int, i int64) {
 				var (
-					k1, k2 int32
+					k1, k2 int64
 					m      int64
 				)
 				k1 = i * num_bucket_keys
@@ -160,13 +160,13 @@ func Rank(iteration int) {
 			switch npb.Class {
 			case "S":
 				if i <= 2 {
-					if keyRank != int64(test_rank_array[i]+iteration) {
+					if keyRank != (test_rank_array[i] + iteration) {
 						failed = true
 					} else {
 						passed_verification++
 					}
 				} else {
-					if keyRank != int64(test_rank_array[i]-iteration) {
+					if keyRank != (test_rank_array[i] - iteration) {
 						failed = true
 					} else {
 						passed_verification++
@@ -175,13 +175,13 @@ func Rank(iteration int) {
 				break
 			case "W":
 				if i < 2 {
-					if keyRank != int64(test_rank_array[i]+iteration-2) {
+					if keyRank != (test_rank_array[i] + iteration - 2) {
 						failed = true
 					} else {
 						passed_verification++
 					}
 				} else {
-					if keyRank != int64(test_rank_array[i]-iteration) {
+					if keyRank != (test_rank_array[i] - iteration) {
 						failed = true
 					} else {
 						passed_verification++
@@ -190,13 +190,13 @@ func Rank(iteration int) {
 				break
 			case "A":
 				if i <= 2 {
-					if keyRank != int64(test_rank_array[i]+iteration-1) {
+					if keyRank != (test_rank_array[i] + iteration - 1) {
 						failed = true
 					} else {
 						passed_verification++
 					}
 				} else {
-					if keyRank != int64(test_rank_array[i]-iteration-1) {
+					if keyRank != (test_rank_array[i] - iteration - 1) {
 						failed = true
 					} else {
 						passed_verification++
@@ -205,13 +205,13 @@ func Rank(iteration int) {
 				break
 			case "B":
 				if i == 1 || i == 2 || i == 4 {
-					if keyRank != int64(test_rank_array[i]+iteration) {
+					if keyRank != (test_rank_array[i] + iteration) {
 						failed = true
 					} else {
 						passed_verification++
 					}
 				} else {
-					if keyRank != int64(test_rank_array[i]-iteration) {
+					if keyRank != (test_rank_array[i] - iteration) {
 						failed = true
 					} else {
 						passed_verification++
@@ -220,13 +220,13 @@ func Rank(iteration int) {
 				break
 			case "C":
 				if i <= 2 {
-					if keyRank != int64(test_rank_array[i]+iteration) {
+					if keyRank != (test_rank_array[i] + iteration) {
 						failed = true
 					} else {
 						passed_verification++
 					}
 				} else {
-					if keyRank != int64(test_rank_array[i]-iteration) {
+					if keyRank != (test_rank_array[i] - iteration) {
 						failed = true
 					} else {
 						passed_verification++
@@ -235,13 +235,13 @@ func Rank(iteration int) {
 				break
 			case "D":
 				if i < 2 {
-					if keyRank != int64(test_rank_array[i]+iteration) {
+					if keyRank != (test_rank_array[i] + iteration) {
 						failed = true
 					} else {
 						passed_verification++
 					}
 				} else {
-					if keyRank != int64(test_rank_array[i]-iteration) {
+					if keyRank != (test_rank_array[i] - iteration) {
 						failed = true
 					} else {
 						passed_verification++
