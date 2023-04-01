@@ -75,7 +75,7 @@ func Rank(iteration int64) {
 		go func(it int64) {
 			for myid := 0; myid < num_procs; myid++ {
 				for k := 0; k < num_procs; k++ {
-					if k < myid {
+					if it == 0 || k < myid {
 						bucket_ptrs[myid][it] += bucket_size[k][it]
 					} else {
 						bucket_ptrs[myid][it] += bucket_size[k][it-1]
