@@ -4,6 +4,8 @@ import (
 	npb "NPB-Golang/commons"
 	"fmt"
 	"os"
+	"runtime"
+	"sync"
 )
 
 func getNPBClass(class string) {
@@ -104,4 +106,54 @@ func FindMySeed(
 	npb.Randlc(&t1, t2)
 
 	return t1
+}
+
+func FullVerify() {
+	var (
+		i, j       int64
+		group      sync.WaitGroup
+		jReduction chan int64
+		numProcs   = runtime.NumCPU()
+	)
+	jReduction = make(chan int64, num_keys)
+
+	group.Add(int(num_buckets) * numProcs)
+	for myid := 0; myid < numProcs; myid++ {
+		for j = int64(0); j < num_buckets; j++ {
+			go func(myid int, j int64) {
+				var k, k1 int64
+				if j > 0 {
+					k1 = bucket_ptrs[myid][j-1]
+				} else {
+					k1 = 0
+				}
+				for i := k1; i < bucket_ptrs[myid][j]; i++ {
+					key_buff_ptr_global[key_buff2[i]] -= 1
+					k = key_buff_ptr_global[key_buff2[i]]
+					key_array[k] = key_buff2[i]
+				}
+				defer group.Done()
+			}(myid, j)
+		}
+	}
+	group.Wait()
+
+	j = 0
+	for i = int64(1); i < num_keys; i++ {
+		go func(i int64) {
+			if key_array[i-1] > key_array[i] {
+				jReduction <- 1
+			} else {
+				jReduction <- 0
+			}
+		}(i)
+	}
+	for i = int64(1); i < num_keys; i++ {
+		j += <-jReduction
+	}
+	if j != 0 {
+		fmt.Println("Full_verify: number of keys out of sort: ", j)
+	} else {
+		passed_verification += 1
+	}
 }

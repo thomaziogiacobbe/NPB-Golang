@@ -144,9 +144,8 @@ func ExecIS() {
 		Rank(iteration)
 	}
 
-	//TODO: full_verify (has 2 parallel instructions)
 	//TODO: full_verify has 1 counter
-	//full_verify()
+	FullVerify()
 
 	if passed_verification != 5*MAX_ITERATIONS+1 {
 		passed_verification = 0
