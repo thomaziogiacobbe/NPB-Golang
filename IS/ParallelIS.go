@@ -70,26 +70,20 @@ func Rank(iteration int64) {
 		}(i)
 	}
 	group.Wait()
-	group.Add(int(num_buckets))
-	for i = int64(0); i < num_buckets; i++ {
-		go func(it int64) {
-			for myid := 0; myid < num_procs; myid++ {
+	group.Add(num_procs)
+	for myid := 0; myid < num_procs; myid++ {
+		go func(myid int) {
+			for k := 0; k < myid; k++ {
+				bucket_ptrs[myid][0] += bucket_size[k][0]
+			}
+			for it := int64(1); it < num_buckets; it++ {
 				for k := 0; k < num_procs; k++ {
-					if it == 0 || k < myid {
+					if k < myid {
 						bucket_ptrs[myid][it] += bucket_size[k][it]
 					} else {
 						bucket_ptrs[myid][it] += bucket_size[k][it-1]
 					}
 				}
-			}
-			defer group.Done()
-		}(i)
-	}
-	group.Wait()
-	group.Add(num_procs)
-	for myid := 0; myid < num_procs; myid++ {
-		go func(myid int) {
-			for it := int64(1); it < num_buckets; it++ {
 				bucket_ptrs[myid][it] += bucket_ptrs[myid][it-1]
 			}
 			defer group.Done()
@@ -122,7 +116,7 @@ func Rank(iteration int64) {
 	group.Wait()
 	group.Add(num_procs * int(num_buckets))
 	for myid := 0; myid < num_procs; myid++ {
-		for it := int64(0); it < num_buckets; it++ {
+		for i = int64(0); i < num_buckets; i++ {
 			go func(myid int, i int64) {
 				var (
 					k1, k2 int64

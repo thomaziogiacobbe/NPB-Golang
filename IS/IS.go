@@ -99,7 +99,6 @@ func ExecIS() {
 	getNPBClass(npb.Class)
 	n_threads = runtime.NumCPU()
 
-	//TODO: verify array allocations
 	key_array = make([]int64, size_of_buffers)
 	key_buff1 = make([]int64, max_key)
 	key_buff2 = make([]int64, size_of_buffers)
@@ -111,7 +110,6 @@ func ExecIS() {
 	fmt.Println(" Size: ", total_keys, " (class ", npb.Class, ")")
 	fmt.Println(" Iterations: ", MAX_ITERATIONS, "\n")
 
-	//TODO: create_seq has 1 counter
 	groupCreateSec.Add(n_threads)
 	for i := 0; i < n_threads; i++ {
 		go CreateSeq(314159265.00, 1220703125.00, i, &groupCreateSec)
@@ -123,7 +121,7 @@ func ExecIS() {
 
 	for iter := 0; iter < n_threads; iter++ {
 		temp := make([]int64, num_buckets)
-		bucket_ptrs = append(bucket_size, temp)
+		bucket_ptrs = append(bucket_ptrs, temp)
 		temp = make([]int64, num_buckets)
 		bucket_size = append(bucket_size, temp)
 	}
@@ -131,7 +129,6 @@ func ExecIS() {
 	//parallel for is not needed for array initialization
 	//when it's declared, it already initializes with value 0
 
-	//TODO: rank has 1 counter
 	Rank(1)
 	passed_verification = 0
 
@@ -148,7 +145,6 @@ func ExecIS() {
 	}
 	tt = time.Since(start)
 
-	//TODO: full_verify has 1 counter
 	FullVerify()
 
 	if passed_verification != 5*MAX_ITERATIONS+1 {
