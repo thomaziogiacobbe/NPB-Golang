@@ -19,7 +19,7 @@ const (
 /* used by full_verify to get */
 /* copies of rank info */
 var (
-	key_buff_ptr_global *int64
+	key_buff_ptr_global []int64
 	passed_verification int
 )
 

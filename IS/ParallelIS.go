@@ -2,6 +2,7 @@ package IS
 
 import (
 	npb "NPB-Golang/commons"
+	"fmt"
 	"runtime"
 	"sync"
 )
@@ -150,5 +151,111 @@ func Rank(iteration int) {
 	}
 	group.Wait()
 
-	//TODO: partial verify
+	for i = 0; i < TEST_ARRAY_SIZE; i++ {
+		k := partial_verify_vals[i]
+		if 0 < k && k <= num_keys-1 {
+			keyRank := key_buff_ptr[k-1]
+			failed := false
+			//TODO: get problem class
+			switch CLASS {
+			case 'S':
+				if i <= 2 {
+					if keyRank != int64(test_rank_array[i]+iteration) {
+						failed = true
+					} else {
+						passed_verification++
+					}
+				} else {
+					if keyRank != int64(test_rank_array[i]-iteration) {
+						failed = true
+					} else {
+						passed_verification++
+					}
+				}
+				break
+			case 'W':
+				if i < 2 {
+					if keyRank != int64(test_rank_array[i]+iteration-2) {
+						failed = true
+					} else {
+						passed_verification++
+					}
+				} else {
+					if keyRank != int64(test_rank_array[i]-iteration) {
+						failed = true
+					} else {
+						passed_verification++
+					}
+				}
+				break
+			case 'A':
+				if i <= 2 {
+					if keyRank != int64(test_rank_array[i]+iteration-1) {
+						failed = true
+					} else {
+						passed_verification++
+					}
+				} else {
+					if keyRank != int64(test_rank_array[i]-iteration-1) {
+						failed = true
+					} else {
+						passed_verification++
+					}
+				}
+				break
+			case 'B':
+				if i == 1 || i == 2 || i == 4 {
+					if keyRank != int64(test_rank_array[i]+iteration) {
+						failed = true
+					} else {
+						passed_verification++
+					}
+				} else {
+					if keyRank != int64(test_rank_array[i]-iteration) {
+						failed = true
+					} else {
+						passed_verification++
+					}
+				}
+				break
+			case 'C':
+				if i <= 2 {
+					if keyRank != int64(test_rank_array[i]+iteration) {
+						failed = true
+					} else {
+						passed_verification++
+					}
+				} else {
+					if keyRank != int64(test_rank_array[i]-iteration) {
+						failed = true
+					} else {
+						passed_verification++
+					}
+				}
+				break
+			case 'D':
+				if i < 2 {
+					if keyRank != int64(test_rank_array[i]+iteration) {
+						failed = true
+					} else {
+						passed_verification++
+					}
+				} else {
+					if keyRank != int64(test_rank_array[i]-iteration) {
+						failed = true
+					} else {
+						passed_verification++
+					}
+				}
+				break
+			}
+			if failed {
+				fmt.Println("Failed partial verification: iteration ", iteration, ", test key ", i, "\n")
+			}
+		}
+	}
+
+	if iteration == MAX_ITERATIONS {
+		key_buff_ptr_global = key_buff_ptr[:]
+	}
 }
