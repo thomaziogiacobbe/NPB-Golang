@@ -4,6 +4,7 @@ import (
 	npb "NPB-Golang/commons"
 	"fmt"
 	"sync"
+	"time"
 )
 
 /************************************************/
@@ -92,8 +93,9 @@ func ExecIS() {
 	var (
 		n_threads      int
 		_, _           int
-		_              float64
+		mops           float64
 		groupCreateSec sync.WaitGroup
+		tt             time.Duration
 	)
 
 	getNPBClass(npb.Class)
@@ -152,4 +154,11 @@ func ExecIS() {
 	}
 
 	//TODO: print results (values and time)
+	npb.Print_results(0,
+		MAX_ITERATIONS,
+		&tt,
+		mops,
+		"Keys Ranked",
+		passed_verification != 0,
+	)
 }
