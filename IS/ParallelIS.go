@@ -66,21 +66,15 @@ func Rank(iteration int64) {
 		bucket_size = append(bucket_size, temp)
 	}
 
-	group.Add(int(num_keys))
-	for it := int64(0); it < num_keys; it += int64(num_procs) {
-		bucketKey := func(myid int64, it int64) {
+	npb.ParallelFor(
+		num_keys,
+		int64(num_procs),
+		&group,
+		func(myid int64, it int64, group *sync.WaitGroup) {
 			bucket_size[myid][key_array[it]>>shift]++
-			defer group.Done()
-		}
-		limit := int64(num_procs)
-		if it+int64(num_procs) >= num_keys {
-			limit = num_keys - it
-		}
-		for myid := int64(0); myid < limit; myid++ {
-			go bucketKey(myid, it+myid)
-		}
-	}
-	group.Wait()
+			defer (*group).Done()
+		},
+	)
 	group.Add(num_procs)
 	for myid := 0; myid < num_procs; myid++ {
 		go func(myid int) {
@@ -102,23 +96,17 @@ func Rank(iteration int64) {
 		}(myid)
 	}
 	group.Wait()
-	group.Add(int(num_keys))
-	for it := int64(0); it < num_keys; it += int64(num_procs) {
-		bucketKey := func(myid int64, it int64) {
+	npb.ParallelFor(
+		num_keys,
+		int64(num_procs),
+		&group,
+		func(myid int64, it int64, group *sync.WaitGroup) {
 			k := key_array[it]
 			key_buff2[bucket_ptrs[myid][k>>shift]] = k
 			bucket_ptrs[myid][k>>shift]++
-			defer group.Done()
-		}
-		limit := int64(num_procs)
-		if it+int64(num_procs) >= num_keys {
-			limit = num_keys - it
-		}
-		for myid := int64(0); myid < limit; myid++ {
-			go bucketKey(myid, it+myid)
-		}
-	}
-	group.Wait()
+			defer (*group).Done()
+		},
+	)
 	group.Add(int(num_buckets))
 	for i = int64(0); i < num_buckets; i++ {
 		go func(it int64) {
@@ -167,7 +155,6 @@ func Rank(iteration int64) {
 		if 0 < k && k <= num_keys-1 {
 			keyRank := key_buff_ptr[k-1]
 			failed := false
-			//TODO: get problem class
 			switch npb.Class {
 			case "S":
 				if i <= 2 {
@@ -268,5 +255,53 @@ func Rank(iteration int64) {
 
 	if iteration == MAX_ITERATIONS {
 		key_buff_ptr_global = key_buff_ptr[:]
+	}
+}
+
+func FullVerify() {
+	var (
+		j          int64
+		group      sync.WaitGroup
+		jReduction chan int64
+		numProcs   = runtime.NumCPU()
+	)
+	jReduction = make(chan int64, num_keys)
+	npb.ParallelFor(
+		num_buckets,
+		int64(numProcs),
+		&group,
+		func(myid int64, j int64, group *sync.WaitGroup) {
+			var k, k1 int64
+			if j > 0 {
+				k1 = bucket_ptrs[myid][j-1]
+			} else {
+				k1 = 0
+			}
+			for i := k1; i < bucket_ptrs[myid][j]; i++ {
+				key_buff_ptr_global[key_buff2[i]] -= 1
+				k = key_buff_ptr_global[key_buff2[i]]
+				key_array[k] = key_buff2[i]
+			}
+			defer (*group).Done()
+		},
+	)
+
+	j = 0
+	for i := int64(1); i < num_keys; i++ {
+		go func(i int64) {
+			if key_array[i-1] > key_array[i] {
+				jReduction <- 1
+			} else {
+				jReduction <- 0
+			}
+		}(i)
+	}
+	for i := int64(1); i < num_keys; i++ {
+		j += <-jReduction
+	}
+	if j != 0 {
+		fmt.Println("Full_verify: number of keys out of sort: ", j)
+	} else {
+		passed_verification += 1
 	}
 }
