@@ -74,6 +74,7 @@ func Rank(iteration int64) {
 			bucket_size[myid][key_array[it]>>shift]++
 			defer (*group).Done()
 		},
+		"static",
 	)
 	group.Add(num_procs)
 	for myid := 0; myid < num_procs; myid++ {
@@ -106,49 +107,80 @@ func Rank(iteration int64) {
 			bucket_ptrs[myid][k>>shift]++
 			defer (*group).Done()
 		},
+		"static",
 	)
-	group.Add(int(num_buckets))
-	for i = int64(0); i < num_buckets; i++ {
-		go func(it int64) {
-			for myid := 0; myid < num_procs-1; myid++ {
+	group.Add(num_procs - 1)
+	for myid := 0; myid < num_procs-1; myid++ {
+		go func(myid int) {
+			for it := int64(0); it < num_buckets; it++ {
 				for k := myid + 1; k < num_procs; k++ {
 					bucket_ptrs[myid][it] += bucket_size[k][it]
 				}
 			}
 			defer group.Done()
-		}(i)
+		}(myid)
 	}
 	group.Wait()
-	group.Add(num_procs * int(num_buckets))
-	for myid := 0; myid < num_procs; myid++ {
-		for i = int64(0); i < num_buckets; i++ {
-			go func(myid int, i int64) {
-				var (
-					k1, k2 int64
-					m      int64
-				)
-				k1 = i * num_bucket_keys
-				k2 = k1 + num_bucket_keys
-				for k := k1; k < k2; k++ {
-					key_buff_ptr[k] = 0
-				}
-				if i > 0 {
-					m = bucket_ptrs[myid][i-1]
-				} else {
-					m = 0
-				}
-				for k := m; k < bucket_ptrs[myid][i]; k++ {
-					key_buff_ptr[key_buff_ptr2[k]]++
-				}
-				key_buff_ptr[k1] += m
-				for k := k1 + 1; k < k2; k++ {
-					key_buff_ptr[k] += key_buff_ptr[k-1]
-				}
-				defer group.Done()
-			}(myid, i)
-		}
-	}
-	group.Wait()
+	npb.ParallelFor(
+		num_buckets,
+		int64(num_procs),
+		&group,
+		func(myid int64, i int64, group *sync.WaitGroup) {
+			var (
+				k1, k2 int64
+				m      int64
+			)
+			k1 = i * num_bucket_keys
+			k2 = k1 + num_bucket_keys
+			for k := k1; k < k2; k++ {
+				key_buff_ptr[k] = 0
+			}
+			if i > 0 {
+				m = bucket_ptrs[myid][i-1]
+			} else {
+				m = 0
+			}
+			for k := m; k < bucket_ptrs[myid][i]; k++ {
+				key_buff_ptr[key_buff_ptr2[k]]++
+			}
+			key_buff_ptr[k1] += m
+			for k := k1 + 1; k < k2; k++ {
+				key_buff_ptr[k] += key_buff_ptr[k-1]
+			}
+			defer (*group).Done()
+		},
+		"dynamic",
+	)
+	//group.Add(num_procs * int(num_buckets))
+	//for myid := 0; myid < num_procs; myid++ {
+	//	for i = int64(0); i < num_buckets; i++ {
+	//		go func(myid int, i int64) {
+	//			var (
+	//				k1, k2 int64
+	//				m      int64
+	//			)
+	//			k1 = i * num_bucket_keys
+	//			k2 = k1 + num_bucket_keys
+	//			for k := k1; k < k2; k++ {
+	//				key_buff_ptr[k] = 0
+	//			}
+	//			if i > 0 {
+	//				m = bucket_ptrs[myid][i-1]
+	//			} else {
+	//				m = 0
+	//			}
+	//			for k := m; k < bucket_ptrs[myid][i]; k++ {
+	//				key_buff_ptr[key_buff_ptr2[k]]++
+	//			}
+	//			key_buff_ptr[k1] += m
+	//			for k := k1 + 1; k < k2; k++ {
+	//				key_buff_ptr[k] += key_buff_ptr[k-1]
+	//			}
+	//			defer group.Done()
+	//		}(myid, i)
+	//	}
+	//}
+	//group.Wait()
 
 	for i = 0; i < TEST_ARRAY_SIZE; i++ {
 		k := partial_verify_vals[i]
@@ -284,6 +316,7 @@ func FullVerify() {
 			}
 			defer (*group).Done()
 		},
+		"dynamic",
 	)
 
 	j = 0
