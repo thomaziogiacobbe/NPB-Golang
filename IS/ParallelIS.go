@@ -292,12 +292,10 @@ func Rank(iteration int64) {
 
 func FullVerify() {
 	var (
-		j          int64
-		group      sync.WaitGroup
-		jReduction chan int64
-		numProcs   = runtime.NumCPU()
+		j        int64
+		group    sync.WaitGroup
+		numProcs = runtime.NumCPU()
 	)
-	jReduction = make(chan int64, num_keys)
 	npb.ParallelFor(
 		num_buckets,
 		int64(numProcs),
@@ -321,16 +319,9 @@ func FullVerify() {
 
 	j = 0
 	for i := int64(1); i < num_keys; i++ {
-		go func(i int64) {
-			if key_array[i-1] > key_array[i] {
-				jReduction <- 1
-			} else {
-				jReduction <- 0
-			}
-		}(i)
-	}
-	for i := int64(1); i < num_keys; i++ {
-		j += <-jReduction
+		if key_array[i-1] > key_array[i] {
+			j++
+		}
 	}
 	if j != 0 {
 		fmt.Println("Full_verify: number of keys out of sort: ", j)
