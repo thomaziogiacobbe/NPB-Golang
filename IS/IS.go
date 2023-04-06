@@ -145,6 +145,8 @@ func ExecIS() {
 	}
 	tt = time.Since(start)
 
+	mops = float64(MAX_ITERATIONS*total_keys) / tt.Seconds() / 1000000.0
+
 	FullVerify()
 
 	if passed_verification != 5*MAX_ITERATIONS+1 {

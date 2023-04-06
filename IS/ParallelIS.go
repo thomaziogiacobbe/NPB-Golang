@@ -149,7 +149,7 @@ func Rank(iteration int64) {
 			}
 			defer (*group).Done()
 		},
-		"dynamic",
+		"static",
 	)
 	//group.Add(num_procs * int(num_buckets))
 	//for myid := 0; myid < num_procs; myid++ {
@@ -316,7 +316,7 @@ func FullVerify() {
 			}
 			defer (*group).Done()
 		},
-		"dynamic",
+		"static",
 	)
 
 	j = 0
