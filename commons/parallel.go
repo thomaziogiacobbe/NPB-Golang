@@ -1,35 +1,23 @@
 package commons
 
 import (
-	"math/rand"
 	"sync"
 )
 
 func ParallelFor(
 	n int64,
-	step int64,
-	group *sync.WaitGroup,
-	f func(id int64, i int64, group *sync.WaitGroup),
-	scheduling string,
+	numCPU int64,
+	f func(id int64, i int64),
 ) {
-	(*group).Add(int(n))
-	switch scheduling {
-	case "static":
-		for it := int64(0); it < n; it += step {
-			limit := step
-			if it+step > n {
-				limit = n - it
+	var group sync.WaitGroup
+	group.Add(int(numCPU))
+	for myid := int64(0); myid < numCPU; myid++ {
+		go func(id int64) {
+			for it := id; it < n; it += numCPU {
+				f(id, it)
 			}
-			for myid := int64(0); myid < limit; myid++ {
-				go f(myid, it+myid, group)
-			}
-		}
-		break
-	case "dynamic":
-		for it := int64(0); it < n; it++ {
-			go f(rand.Int63()%step, it, group)
-		}
-		break
+			defer group.Done()
+		}(myid)
 	}
-	(*group).Wait()
+	group.Wait()
 }

@@ -18,7 +18,6 @@ func Vranlc(n int, xSeed *float64, a float64, y []float64) {
 	*xSeed = float64(ux)
 }
 
-// TODO: verificar se para outras classes usar a formula pode causar problema
 func Randlc(x *float64, a float64) float64 {
 	ux := uint64(*x) * uint64(a) % uint64(t46)
 	*x = float64(ux)
