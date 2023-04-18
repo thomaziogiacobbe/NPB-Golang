@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"runtime"
 	"sync"
+	"sync/atomic"
 )
 
 func CreateSeq(
@@ -141,6 +142,7 @@ func Rank(iteration int64) {
 				key_buff_ptr[k] += key_buff_ptr[k-1]
 			}
 		},
+		"dynamic",
 	)
 
 	for i = 0; i < TEST_ARRAY_SIZE; i++ {
@@ -272,14 +274,19 @@ func FullVerify() {
 				key_array[k] = key_buff2[i]
 			}
 		},
+		"dynamic",
 	)
 
 	j = 0
-	for i := int64(1); i < num_keys; i++ {
-		if key_array[i-1] > key_array[i] {
-			j++
-		}
-	}
+	npb.ParallelFor(
+		num_keys-1,
+		int64(numProcs),
+		func(_ int64, i int64) {
+			if key_array[i] > key_array[i+1] {
+				atomic.AddInt64(&j, 1)
+			}
+		},
+	)
 	if j != 0 {
 		fmt.Println("Full_verify: number of keys out of sort: ", j)
 	} else {
