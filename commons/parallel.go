@@ -2,6 +2,7 @@ package commons
 
 import (
 	"sync"
+	"sync/atomic"
 )
 
 func ParallelFor(
@@ -30,25 +31,11 @@ func ParallelFor(
 		}
 		break
 	case "dynamic":
-		var (
-			arrayLock sync.Mutex
-		)
-		indexes := make([]int64, n)
-		for it := int64(0); it < n; it++ {
-			indexes[it] = it
-		}
+		var index atomic.Int64
+		index.Store(-1)
 		for myid := int64(0); myid < numCPU; myid++ {
 			go func(id int64) {
-				var it int64
-				for {
-					arrayLock.Lock()
-					if len(indexes) == 0 {
-						arrayLock.Unlock()
-						break
-					}
-					it = indexes[0]
-					indexes = indexes[1:]
-					arrayLock.Unlock()
+				for it := index.Add(1); it < n; it = index.Add(1) {
 					f(id, it)
 				}
 				defer group.Done()
