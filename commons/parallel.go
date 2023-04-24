@@ -5,22 +5,24 @@ import (
 	"sync/atomic"
 )
 
+type Scheduler int
+
+const (
+	DYNAMIC Scheduler = iota
+	STATIC
+)
+
 func ParallelFor(
 	n int64,
 	numCPU int64,
 	f func(id int64, i int64),
-	_schedule ...string,
-) {
+	schedulling Scheduler) {
 	var (
-		group    sync.WaitGroup
-		schedule = "static"
+		group sync.WaitGroup
 	)
-	if len(_schedule) > 0 {
-		schedule = _schedule[0]
-	}
 	group.Add(int(numCPU))
-	switch schedule {
-	case "static":
+	switch schedulling {
+	case STATIC:
 		for myid := int64(0); myid < numCPU; myid++ {
 			go func(id int64) {
 				for it := id; it < n; it += numCPU {
@@ -30,7 +32,7 @@ func ParallelFor(
 			}(myid)
 		}
 		break
-	case "dynamic":
+	case DYNAMIC:
 		var index atomic.Int64
 		index.Store(-1)
 		for myid := int64(0); myid < numCPU; myid++ {

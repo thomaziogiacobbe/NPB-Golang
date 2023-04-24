@@ -73,6 +73,7 @@ func Rank(iteration int64) {
 		func(myid int64, it int64) {
 			bucket_size[myid][key_array[it]>>shift]++
 		},
+		npb.STATIC,
 	)
 	group.Add(num_procs)
 	for myid := 0; myid < num_procs; myid++ {
@@ -103,6 +104,7 @@ func Rank(iteration int64) {
 			key_buff2[bucket_ptrs[myid][k>>shift]] = k
 			bucket_ptrs[myid][k>>shift]++
 		},
+		npb.STATIC,
 	)
 	group.Add(num_procs - 1)
 	for myid := 0; myid < num_procs-1; myid++ {
@@ -142,7 +144,7 @@ func Rank(iteration int64) {
 				key_buff_ptr[k] += key_buff_ptr[k-1]
 			}
 		},
-		"dynamic",
+		npb.DYNAMIC,
 	)
 
 	for i = 0; i < TEST_ARRAY_SIZE; i++ {
@@ -274,7 +276,7 @@ func FullVerify() {
 				key_array[k] = key_buff2[i]
 			}
 		},
-		"dynamic",
+		npb.DYNAMIC,
 	)
 
 	j = 0
@@ -286,6 +288,7 @@ func FullVerify() {
 				atomic.AddInt64(&j, 1)
 			}
 		},
+		npb.STATIC,
 	)
 	if j != 0 {
 		fmt.Println("Full_verify: number of keys out of sort: ", j)
