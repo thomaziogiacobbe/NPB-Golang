@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"runtime"
 	"sync"
-	"sync/atomic"
 )
 
 func CreateSeq(
@@ -280,16 +279,33 @@ func FullVerify() {
 	)
 
 	j = 0
-	npb.ParallelFor(
-		num_keys-1,
-		int64(numProcs),
-		func(_ int64, i int64) {
-			if key_array[i] > key_array[i+1] {
-				atomic.AddInt64(&j, 1)
+	jReduction := make(chan int64, num_keys-1)
+	for id := int64(0); id < int64(numProcs); id++ {
+		go func(id int64) {
+			if id == 0 {
+				id += int64(numProcs)
 			}
-		},
-		npb.STATIC,
-	)
+			for i := id; i < num_keys; i += int64(numProcs) {
+				if key_array[i-1] > key_array[i] {
+					jReduction <- 1
+				} else {
+					jReduction <- 0
+				}
+			}
+		}(id)
+	}
+	for i := int64(1); i < num_keys; i++ {
+		j += <-jReduction
+	}
+	//npb.ParallelFor(
+	//	num_keys-1,
+	//	int64(numProcs),
+	//	func(_ int64, i int64) {
+	//		if key_array[i] > key_array[i+1] {
+	//			atomic.AddInt64(&j, 1)
+	//		}
+	//	},
+	//)
 	if j != 0 {
 		fmt.Println("Full_verify: number of keys out of sort: ", j)
 	} else {
