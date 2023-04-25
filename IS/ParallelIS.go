@@ -279,24 +279,38 @@ func FullVerify() {
 	)
 
 	j = 0
-	jReduction := make(chan int64, num_keys-1)
-	for id := int64(0); id < int64(numProcs); id++ {
-		go func(id int64) {
-			if id == 0 {
-				id += int64(numProcs)
-			}
-			for i := id; i < num_keys; i += int64(numProcs) {
-				if key_array[i-1] > key_array[i] {
-					jReduction <- 1
-				} else {
-					jReduction <- 0
-				}
-			}
-		}(id)
-	}
 	for i := int64(1); i < num_keys; i++ {
-		j += <-jReduction
+		if key_array[i-1] > key_array[i] {
+			j++
+		}
 	}
+	// Com channels
+	//
+	// ************
+	//jReduction := make(chan int64, num_keys-1)
+	//for id := int64(0); id < int64(numProcs); id++ {
+	//	go func(id int64) {
+	//		if id == 0 {
+	//			id += int64(numProcs)
+	//		}
+	//		for i := id; i < num_keys; i += int64(numProcs) {
+	//			if key_array[i-1] > key_array[i] {
+	//				jReduction <- 1
+	//			} else {
+	//				jReduction <- 0
+	//			}
+	//		}
+	//	}(id)
+	//}
+	//for i := int64(1); i < num_keys; i++ {
+	//	j += <-jReduction
+	//}
+	//
+	// **********************
+	//
+	// Com função ParallelFor
+	//
+	// **********************
 	//npb.ParallelFor(
 	//	num_keys-1,
 	//	int64(numProcs),
