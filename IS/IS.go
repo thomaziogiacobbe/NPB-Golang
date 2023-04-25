@@ -123,23 +123,10 @@ func ExecIS() {
 	}
 	groupCreateSec.Wait()
 
-	bucket_ptrs = make([][]int64, 0, n_threads)
-	bucket_size = make([][]int64, 0, n_threads)
-
-	for iter := 0; iter < n_threads; iter++ {
-		temp := make([]int64, num_buckets)
-		bucket_ptrs = append(bucket_ptrs, temp)
-		temp = make([]int64, num_buckets)
-		bucket_size = append(bucket_size, temp)
-	}
-
-	key_buff1_aptr = make([][]int64, 0, n_threads)
-	key_buff1_aptr = append(key_buff1_aptr, key_buff1)
-
-	for iter := 1; iter < n_threads; iter++ {
-		temp := make([]int64, max_key)
-		key_buff1_aptr = append(key_buff1_aptr, temp)
-	}
+	bucket_ptrs = npb.CreateMatrix(n_threads, int(num_buckets))
+	bucket_size = npb.CreateMatrix(n_threads, int(num_buckets))
+	key_buff1_aptr = npb.CreateMatrix(n_threads, int(max_key))
+	key_buff1_aptr[0] = key_buff1
 
 	//parallel for is not needed for array initialization
 	//when it's declared, it already initializes with value 0

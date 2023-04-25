@@ -60,11 +60,7 @@ func Rank(iteration int64) {
 		partial_verify_vals[i] = key_array[test_index_array[i]]
 	}
 
-	bucket_size = make([][]int64, 0, num_procs)
-	for iter := 0; iter < num_procs; iter++ {
-		temp := make([]int64, num_buckets)
-		bucket_size = append(bucket_size, temp)
-	}
+	npb.ResetMatrix(bucket_size)
 
 	npb.ParallelFor(
 		num_keys,
