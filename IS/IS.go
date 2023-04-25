@@ -144,7 +144,7 @@ func ExecIS() {
 	//parallel for is not needed for array initialization
 	//when it's declared, it already initializes with value 0
 
-	Rank(1)
+	RankFunction(1)
 	passed_verification = 0
 
 	if npb.Class != "S" {
@@ -156,13 +156,13 @@ func ExecIS() {
 		if npb.Class != "S" {
 			fmt.Println("\t\t", iteration)
 		}
-		Rank(int64(iteration))
+		RankFunction(int64(iteration))
 	}
 	tt = time.Since(start)
 
 	mops = float64(MAX_ITERATIONS*total_keys) / tt.Seconds() / 1000000.0
 
-	FullVerify()
+	FullVerifyFunction()
 
 	if passed_verification != 5*MAX_ITERATIONS+1 {
 		passed_verification = 0

@@ -8,10 +8,9 @@ import (
 	"os"
 )
 
-type classFunc func(int) string
-
 // required params: {benchmark} CLASS={class}
 // optional param: {-f file_name}
+// optional param: USE_BUCKETS (must be the last argument, default: do not use buckets)
 func main() {
 	args := os.Args[1:]
 
@@ -30,6 +29,12 @@ func main() {
 			fileArg = args[3]
 		}
 		commons.File = getFile(commons.Benchmark, commons.Class, fileArg)
+	}
+
+	if commons.Benchmark == "IS" {
+		if args[len(args)-1] == "USE_BUCKETS" {
+			is.RankFunction, is.FullVerifyFunction = is.Rank, is.FullVerify
+		}
 	}
 	benchmark()
 }

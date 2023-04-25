@@ -6,6 +6,11 @@ import (
 	"os"
 )
 
+var (
+	RankFunction       = RankNoBuckets
+	FullVerifyFunction = FullVerifyNoBuckets
+)
+
 func getNPBClass(class string) {
 	switch class {
 	case "S":
