@@ -26,14 +26,19 @@ var (
 )
 
 /* #define USE_BUCKETS */
-/* USE_BUCKETS is always defined */
-/* because of that, it is never declared */
 var (
-	/* bucket_ptrs is originally threadprivate */
-	/* and should be passed as parameter to any go func */
+	/* bucket_ptrs is originally threadprivate, */
+	/* which means each line should be accessed */
+	/* through thread id on any go func */
 	bucket_ptrs [][]int64
 	/* originally a pointer to pointer */
 	bucket_size [][]int64
+)
+
+/* Without #define USE_BUCKETS*/
+var (
+	/* originally a pointer to pointer */
+	key_buff1_aptr [][]int64
 )
 
 /************************************/
@@ -126,6 +131,14 @@ func ExecIS() {
 		bucket_size = append(bucket_size, temp)
 	}
 
+	key_buff1_aptr = make([][]int64, 0, n_threads)
+	key_buff1_aptr = append(key_buff1_aptr, key_buff1)
+
+	for iter := 1; iter < n_threads; iter++ {
+		temp := make([]int64, max_key)
+		key_buff1_aptr = append(key_buff1_aptr, temp)
+	}
+
 	//parallel for is not needed for array initialization
 	//when it's declared, it already initializes with value 0
 
@@ -153,7 +166,6 @@ func ExecIS() {
 		passed_verification = 0
 	}
 
-	//TODO: print results (values and time)
 	npb.Print_results(0,
 		MAX_ITERATIONS,
 		&tt,
