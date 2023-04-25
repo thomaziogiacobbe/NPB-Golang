@@ -104,6 +104,8 @@ func ExecIS() {
 	getNPBClass(npb.Class)
 	n_threads = runtime.NumCPU()
 
+	//TODO: select mode for use buckets or no buckets
+
 	key_array = make([]int64, size_of_buffers)
 	key_buff1 = make([]int64, max_key)
 	key_buff2 = make([]int64, size_of_buffers)

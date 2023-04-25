@@ -146,7 +146,18 @@ func Rank(iteration int64) {
 		npb.DYNAMIC,
 	)
 
-	for i = 0; i < TEST_ARRAY_SIZE; i++ {
+	partialVerify(iteration, key_buff_ptr[:])
+
+	if iteration == MAX_ITERATIONS {
+		key_buff_ptr_global = key_buff_ptr[:]
+	}
+}
+
+func partialVerify(
+	iteration int64,
+	key_buff_ptr []int64,
+) {
+	for i := 0; i < TEST_ARRAY_SIZE; i++ {
 		k := partial_verify_vals[i]
 		if 0 < k && k <= num_keys-1 {
 			keyRank := key_buff_ptr[k-1]
@@ -247,10 +258,6 @@ func Rank(iteration int64) {
 				fmt.Println("Failed partial verification: iteration ", iteration, ", test key ", i, "\n")
 			}
 		}
-	}
-
-	if iteration == MAX_ITERATIONS {
-		key_buff_ptr_global = key_buff_ptr[:]
 	}
 }
 
