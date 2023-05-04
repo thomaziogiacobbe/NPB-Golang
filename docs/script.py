@@ -1,6 +1,5 @@
 from create_statistics import create_statistics
 from filenames import *
-import numpy as np
 import matplotlib.pyplot as plt
 
 def create_barchart_for_means(filenames, title, output):
@@ -11,26 +10,26 @@ def create_barchart_for_means(filenames, title, output):
 
 	means = [d["mean"] for d in dataset]
 
-	fig, ax = plt.subplots(figsize = (5.4,9.6))
+	fig, ax = plt.subplots(figsize = (4.8,6.4))
 
 	width = 0.25
-	colors = ['red', 'blue', 'orange'] if len(authors) == 3 else ['blue', 'orange']
+	colors = ['blue', 'red', 'orange'] if len(authors) == 3 else ['blue', 'orange']
 
 	author_count = 0
 	for i in range(len(means)):
 		rects = ax.bar(
-			[author_count],
+			i/len(means),
 			means[i],
 			width=width,
 			color=colors[author_count],
 			label=authors[author_count])
 		for rect in rects:
 			height = rect.get_height()
-			ax.annotate(f'{height:.3f}', xy=(rect.get_x() + rect.get_width() / 2, height), xytext=(0, 3), textcoords="offset points", ha='center', va='bottom')
+			ax.annotate(f'{height:.4f}', xy=(rect.get_x() + rect.get_width() / 2, height), xytext=(0, 3), textcoords="offset points", ha='center', va='bottom')
 		author_count = (author_count + 1) % 3
 
 	ax.set_title(title)
-	ax.set_xticks(np.arange(len(authors)))
+	ax.set_xticks([i/len(authors) for i in range(len(authors))])
 	ax.set_xticklabels(authors)
 	ax.set_ylabel('Average time (s)')
 

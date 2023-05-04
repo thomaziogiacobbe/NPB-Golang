@@ -1,6 +1,6 @@
 titles = [
-    "Dalvan (C++)",
     "NAS (Fortran)",
+    "Dalvan (C++)",
     "NPB-Golang"
 ]
 
@@ -10,44 +10,44 @@ titles_nobuckets = [
 ]
 
 ep_s = [
-    'ep/ep_S_dalvan.txt',
     'ep/ep_S_nasa.txt',
+    'ep/ep_S_dalvan.txt',
     'ep/ep.s.txt'
 ]
 
 ep_a = [
-    'ep/ep_A_dalvan.txt',
     'ep/ep_A_nasa.txt',
+    'ep/ep_A_dalvan.txt',
     'ep/ep.a.txt'
 ]
 
 ep_b = [
-    'ep/ep_B_dalvan.txt',
     'ep/ep_B_nasa.txt',
+    'ep/ep_B_dalvan.txt',
     'ep/ep.b.txt'
 ]
 
 is_s = [
-    'is/dalvan_is_S.txt',
     'is/nas_is_S.txt',
+    'is/dalvan_is_S.txt',
     'is/IS_S.txt'
 ]
 
 is_w = [
-    'is/dalvan_is_W.txt',
     'is/nas_is_W.txt',
+    'is/dalvan_is_W.txt',
     'is/IS_W.txt'
 ]
 
 is_a = [
-    'is/dalvan_is_A.txt',
     'is/nas_is_A.txt',
+    'is/dalvan_is_A.txt',
     'is/IS_A.txt'
 ]
 
 is_b = [
-    'is/dalvan_is_B.txt',
     'is/nas_is_B.txt',
+    'is/dalvan_is_B.txt',
     'is/IS_B.txt'
 ]
 
